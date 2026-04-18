@@ -3,140 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aprendendo com Amor - GV13 Studios</title>
+    <title>GV13 Studios - Gestão Corporativa</title>
     <style>
-        :root { --primary: #ff6b6b; --secondary: #4ecdc4; --dark: #2d3436; --light: #f8f9fa; --gray: #95a5a6; }
+        :root { --primary: #ff6b6b; --secondary: #4ecdc4; --dark: #2d3436; --light: #f8f9fa; --gray: #95a5a6; --warning: #f1c40f; --danger: #e74c3c; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding-bottom: 90px; color: var(--dark); overflow-x: hidden; }
         
-        /* TELA DE LOGIN */
+        /* LOGIN */
         #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-box { text-align: center; width: 85%; max-width: 320px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .login-box { text-align: center; width: 85%; max-width: 350px; padding: 40px 20px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
         
-        /* TELA DE CARREGAMENTO (LOADING) */
-        #loading-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #2d3436; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9998; color: white; }
-        .loader-container { width: 80%; max-width: 300px; height: 6px; background: #444; border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
-        .loader-bar { width: 0%; height: 100%; background: var(--primary); transition: width 10s linear; }
-        .loader-text { font-size: 12px; color: var(--gray); font-family: monospace; letter-spacing: 1px; }
+        /* LOADING */
+        #loading-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #1a1a1a; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9998; color: white; }
+        .loader-container { width: 70%; max-width: 300px; height: 4px; background: #333; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+        .loader-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 10s linear; }
+        .loader-text { font-size: 10px; color: var(--secondary); font-family: 'Courier New', monospace; text-transform: uppercase; letter-spacing: 2px; height: 20px; }
 
-        /* CONTEÚDO PRINCIPAL */
         #main-content { display: none; }
-        
         .app-header { background: white; padding: 15px; text-align: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 900; }
-        .app-header h1 { margin: 0; font-size: 20px; color: var(--primary); }
+        .app-header h1 { margin: 0; font-size: 18px; color: var(--dark); letter-spacing: 1px; }
 
         .section { display: none; padding: 15px; max-width: 600px; margin: auto; }
         .section.active { display: block; }
-        .card { background: white; padding: 18px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .card { background: white; padding: 18px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; }
         
-        /* BUSCA E LISTA */
-        .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 15px; font-size: 16px; box-sizing: border-box; }
-        .item-aluno { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 12px; margin-bottom: 8px; border: 1px solid #eee; }
-        .status-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-left: 5px; }
-        .status-ativo { background: #e3fcef; color: #00a854; }
-        .status-suspenso { background: #fff1f0; color: #f5222d; }
-
-        .btn { background: var(--primary); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        .btn-sec { background: #f1f3f5; color: #495057; }
-        
-        input, select, textarea { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #e9ecef; border-radius: 10px; box-sizing: border-box; font-size: 16px; background: #f8f9fa; }
+        .atrasado { border-left: 5px solid var(--danger) !important; background: #fff5f5 !important; }
+        .item-aluno { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 12px; margin-bottom: 8px; border: 1px solid #eee; transition: 0.3s; }
         
         .day-selector { display: flex; gap: 8px; margin: 10px 0; overflow-x: auto; padding-bottom: 8px; }
-        .day-btn { padding: 10px 18px; border: 1px solid #dee2e6; border-radius: 25px; font-size: 13px; white-space: nowrap; cursor: pointer; background: white; flex-shrink: 0; }
-        .day-btn.active { background: var(--secondary); color: white; border-color: var(--secondary); }
+        .day-btn { padding: 10px 18px; border: 1px solid #dee2e6; border-radius: 25px; font-size: 13px; white-space: nowrap; cursor: pointer; background: white; flex-shrink: 0; color: var(--gray); }
+        .day-btn.active { background: var(--secondary); color: white; border-color: var(--secondary); font-weight: bold; }
 
-        .mes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .mes-item { border: 1px solid #eee; padding: 12px 5px; text-align: center; border-radius: 10px; font-size: 12px; cursor: pointer; background: #fff; }
-        .mes-pago { background: var(--secondary); color: white; }
+        .btn { background: var(--dark); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 13px; opacity: 0.8; }
+        .btn-danger:hover { opacity: 1; }
 
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 15px rgba(0,0,0,0.08); z-index: 1000; }
-        .nav-item { border: none; background: none; color: var(--gray); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
+        .nav-item { border: none; background: none; color: var(--gray); font-size: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: flex-end; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: flex-end; }
         .modal-content { background: white; padding: 25px; border-radius: 25px 25px 0 0; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
         
-        .footer-credits { text-align: center; margin-top: 30px; padding: 20px 0; color: #b2bec3; font-size: 11px; line-height: 1.5; }
+        .footer-credits { text-align: center; margin-top: 30px; padding: 20px; color: #999; font-size: 10px; border-top: 1px dashed #ddd; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
     <div class="login-box">
-        <h1 style="font-size: 50px; margin:0;">❤️</h1>
-        <h2>Acesso bloqueado</h2>
-        <input type="password" id="pass-input" placeholder="Senha do sistema">
-        <button class="btn" onclick="checkLogin()">Entrar</button>
+        <h1 style="margin:0; font-size:24px;">GV13 <span style="color:var(--primary)">STUDIOS</span></h1>
+        <p style="font-size:12px; color:var(--gray); margin-bottom:25px;">GESTÃO CORPORATIVA</p>
+        <input type="password" id="pass-input" placeholder="Senha" style="text-align:center;">
+        <button class="btn" style="background:var(--primary)" onclick="checkLogin()">AUTENTICAR</button>
     </div>
 </div>
 
 <div id="loading-screen">
-    <div class="loader-container">
-        <div class="loader-bar" id="bar"></div>
-    </div>
-    <div class="loader-text">O motor gráfico GV13 está sendo iniciado...</div>
+    <div class="loader-container"><div class="loader-bar" id="bar"></div></div>
+    <div class="loader-text">Sincronizando com GV13 Cloud...</div>
 </div>
 
 <div id="main-content">
-    <div class="app-header"><h1>❤️ Aprendendo com Amor</h1></div>
+    <div class="app-header"><h1>APRENDENDO COM AMOR</h1></div>
 
     <section id="aba-inicio" class="section active">
-        <div class="card" style="text-align:center; background: var(--primary); color: white;">
-            <h3 style="margin:0;">Bem-vinda de volta!</h3>
-            <p id="hoje-data" style="font-size:13px; margin-top:5px;"></p>
+        <div class="card" style="background: var(--dark); color: white;">
+            <small>CONTA CORPORATIVA</small>
+            <h2 id="hoje-data" style="margin: 5px 0; font-size: 18px;"></h2>
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-            <div class="card"><small>Recebido</small><p id="dash-recebido" style="font-size:18px; font-weight:bold; color:green;">R$ 0,00</p></div>
-            <div class="card"><small>Pendente</small><p id="dash-pendente" style="font-size:18px; font-weight:bold; color:red;">R$ 0,00</p></div>
+            <div class="card"><small>RECEBIDO</small><p id="dash-recebido" style="font-size:18px; font-weight:bold; color:#27ae60;">R$ 0,00</p></div>
+            <div class="card"><small>PENDENTE</small><p id="dash-pendente" style="font-size:18px; font-weight:bold; color:var(--danger);">R$ 0,00</p></div>
         </div>
         <div class="footer-credits">
-            Produzido por Gemini + Gerson<br>
-            Todos os direitos reservados a <strong>GV13 studios</strong>
+            Produzido por Gemini + Gerson | <strong>GV13 Studios</strong><br>
+            A corporação GV13 assume responsabilidade total por este sistema.
         </div>
     </section>
 
     <section id="aba-alunos" class="section">
-        <input type="text" class="search-box" id="inputBusca" placeholder="🔍 Buscar aluno..." onkeyup="renderAlunos()">
+        <input type="text" class="search-box" id="inputBusca" placeholder="🔍 Buscar cliente..." onkeyup="renderAlunos()">
         <div id="lista-alunos"></div>
-        <button class="btn" style="position:fixed; bottom:100px; right:20px; width:60px; height:60px; border-radius:50%; font-size:25px; z-index:999;" onclick="abrirModalCadastro()">+</button>
+        <button class="btn" style="position:fixed; bottom:100px; right:20px; width:60px; height:60px; border-radius:50%; background:var(--primary); font-size:25px; z-index:999;" onclick="abrirModalCadastro()">+</button>
     </section>
 
     <section id="aba-agenda" class="section">
         <div class="day-selector">
-            <button class="day-btn active" onclick="filtrarAgenda('Segunda', this)">Segunda</button>
-            <button class="day-btn" onclick="filtrarAgenda('Terça', this)">Terça</button>
-            <button class="day-btn" onclick="filtrarAgenda('Quarta', this)">Quarta</button>
-            <button class="day-btn" onclick="filtrarAgenda('Quinta', this)">Quinta</button>
-            <button class="day-btn" onclick="filtrarAgenda('Sexta', this)">Sexta</button>
+            <button class="day-btn active" onclick="filtrarAgenda('Segunda', this)">SEG</button>
+            <button class="day-btn" onclick="filtrarAgenda('Terça', this)">TER</button>
+            <button class="day-btn" onclick="filtrarAgenda('Quarta', this)">QUA</button>
+            <button class="day-btn" onclick="filtrarAgenda('Quinta', this)">QUI</button>
+            <button class="day-btn" onclick="filtrarAgenda('Sexta', this)">SEX</button>
         </div>
         <div class="card" id="lista-agenda"></div>
     </section>
 
     <section id="aba-config" class="section">
         <div class="card">
-            <h3>💾 Backup</h3>
-            <button class="btn" onclick="exportarDados()" style="background:#2ecc71">📥 Salvar Backup</button>
-            <button class="btn btn-sec" onclick="document.getElementById('input-file').click()">📤 Abrir Backup</button>
+            <h3>SEGURANÇA DE DADOS</h3>
+            <button class="btn" onclick="exportarDados()" style="background:#27ae60">EXPORTAR BACKUP</button>
+            <button class="btn" onclick="document.getElementById('input-file').click()" style="background:var(--gray)">IMPORTAR BACKUP</button>
             <input type="file" id="input-file" style="display:none" onchange="importarDados(event)">
         </div>
-        <button onclick="location.reload()" style="background:none; border:none; width:100%; color:gray; margin-top:20px; text-decoration:underline;">Sair e Bloquear</button>
     </section>
 
     <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('aba-inicio', this)">🏠<br>Início</button>
-        <button class="nav-item" onclick="switchTab('aba-alunos', this)">👥<br>Alunos</button>
-        <button class="nav-item" onclick="switchTab('aba-agenda', this)">⏰<br>Agenda</button>
-        <button class="nav-item" onclick="switchTab('aba-config', this)">⚙️<br>Mais</button>
+        <button class="nav-item active" onclick="switchTab('aba-inicio', this)">📊<br>INÍCIO</button>
+        <button class="nav-item" onclick="switchTab('aba-alunos', this)">👥<br>CLIENTES</button>
+        <button class="nav-item" onclick="switchTab('aba-agenda', this)">📅<br>HORÁRIOS</button>
+        <button class="nav-item" onclick="switchTab('aba-config', this)">🛡️<br>SISTEMA</button>
     </nav>
 </div>
 
 <div id="modalCadastro" class="modal">
     <div class="modal-content">
-        <h2 id="tituloModal">Novo Aluno</h2>
+        <h2 id="tituloModal">Novo Cliente</h2>
         <input type="hidden" id="edit-id">
-        <input type="text" id="inNome" placeholder="Nome">
-        <input type="text" id="inResp" placeholder="Pai/Mãe">
+        <input type="text" id="inNome" placeholder="Nome do Aluno">
+        <input type="text" id="inResp" placeholder="Responsável">
         <input type="text" id="inTel" placeholder="WhatsApp">
-        <input type="number" id="inVenc" placeholder="Dia de Vencimento">
+        <input type="number" id="inVenc" placeholder="Dia Vencimento">
         <input type="number" id="inValor" placeholder="Valor Mensal R$">
         <select id="inHorario">
             <option value="13:00">13:00 às 14:00</option>
@@ -148,51 +135,175 @@
             <option value="Ativo">Ativo</option>
             <option value="Suspenso">Suspenso</option>
         </select>
-        <div class="day-selector" id="inDias">
+        
+        <p style="font-size:12px; margin:10px 0 5px 0;">Dias de Aula:</p>
+        <div class="day-selector" id="listaDiasCadastro">
             <span class="day-btn" onclick="this.classList.toggle('active')">Segunda</span>
             <span class="day-btn" onclick="this.classList.toggle('active')">Terça</span>
             <span class="day-btn" onclick="this.classList.toggle('active')">Quarta</span>
             <span class="day-btn" onclick="this.classList.toggle('active')">Quinta</span>
             <span class="day-btn" onclick="this.classList.toggle('active')">Sexta</span>
         </div>
-        <button class="btn" onclick="salvarAluno()">Confirmar</button>
-        <button class="btn btn-sec" onclick="fecharModais()">Cancelar</button>
+
+        <button class="btn" style="background:var(--primary)" onclick="salvarAluno()">SALVAR DADOS</button>
+        <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">FECHAR</button>
     </div>
 </div>
 
 <div id="modalFicha" class="modal"><div class="modal-content" id="fichaCorpo"></div></div>
 
 <script>
-    const meses = ["Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    const DB_NAME = 'amor_pedagogia_v10';
+    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const DB_NAME = 'gv13_studios_db_final';
     let alunos = JSON.parse(localStorage.getItem(DB_NAME)) || [];
 
-    // LÓGICA DE LOGIN E LOADING
     function checkLogin() {
-        const p = document.getElementById('pass-input').value;
-        if(p === "reforco") {
-            // Esconde login
+        if(document.getElementById('pass-input').value === "reforco") {
             document.getElementById('login-screen').style.display = 'none';
-            // Mostra loading
-            const loading = document.getElementById('loading-screen');
-            loading.style.display = 'flex';
-            
-            // Inicia animação da barra
+            document.getElementById('loading-screen').style.display = 'flex';
+            document.getElementById('bar').style.width = '100%';
             setTimeout(() => {
-                document.getElementById('bar').style.width = '100%';
-            }, 100);
-
-            // Aguarda 10 segundos para liberar o sistema
-            setTimeout(() => {
-                loading.style.display = 'none';
+                document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
                 renderTudo();
-                filtrarAgenda('Segunda');
             }, 10000);
+        } else { alert("Senha incorreta"); }
+    }
 
-        } else {
-            alert("Senha incorreta!");
+    function salvarAluno() {
+        const id = document.getElementById('edit-id').value;
+        const diasSelecionados = Array.from(document.querySelectorAll('#listaDiasCadastro .day-btn.active')).map(b => b.innerText);
+        
+        if(!document.getElementById('inNome').value || diasSelecionados.length === 0) {
+            alert("Nome e Dias são obrigatórios!");
+            return;
         }
+
+        const novo = {
+            id: id ? parseInt(id) : Date.now(),
+            nome: document.getElementById('inNome').value,
+            resp: document.getElementById('inResp').value,
+            tel: document.getElementById('inTel').value,
+            venc: document.getElementById('inVenc').value,
+            valor: parseFloat(document.getElementById('inValor').value) || 0,
+            horario: document.getElementById('inHorario').value,
+            status: document.getElementById('inStatus').value,
+            dias: diasSelecionados,
+            historico: id ? (alunos.find(a => a.id == id).historico || []) : [],
+            notas: id ? (alunos.find(a => a.id == id).notas || "") : ""
+        };
+
+        if(id) {
+            const idx = alunos.findIndex(a => a.id == id);
+            alunos[idx] = novo;
+        } else {
+            alunos.push(novo);
+        }
+
+        localStorage.setItem(DB_NAME, JSON.stringify(alunos));
+        fecharModais();
+        renderTudo();
+    }
+
+    function renderAlunos() {
+        const busca = document.getElementById('inputBusca').value.toLowerCase();
+        const container = document.getElementById('lista-alunos');
+        container.innerHTML = "";
+        const hoje = new Date().getDate();
+        const mesAtual = meses[new Date().getMonth()];
+
+        alunos.filter(a => a.nome.toLowerCase().includes(busca))
+        .sort((a,b) => a.nome.localeCompare(b.nome))
+        .forEach(al => {
+            const jaPago = al.historico.includes(mesAtual);
+            const emAtraso = !jaPago && hoje > parseInt(al.venc) && al.status === 'Ativo';
+            container.innerHTML += `
+                <div class="item-aluno ${emAtraso ? 'atrasado' : ''}" onclick="verFicha(${al.id})">
+                    <div><strong>${al.nome}</strong> ${emAtraso ? '⚠️' : ''}<br><small>Venc: ${al.venc}</small></div>
+                    <div style="text-align:right"><b>${al.horario}h</b><br><small>${jaPago ? 'PAGO' : 'PENDENTE'}</small></div>
+                </div>`;
+        });
+    }
+
+    function verFicha(id) {
+        const al = alunos.find(a => a.id == id);
+        document.getElementById('fichaCorpo').innerHTML = `
+            <h2 style="margin-top:0">${al.nome}</h2>
+            <p><b>Dias:</b> ${al.dias.join(', ')}</p>
+            <p><b>Mensalidade:</b> R$ ${al.valor.toFixed(2)}</p>
+            <textarea style="width:100%; height:60px;" onblur="salvarNota(${al.id}, this.value)" placeholder="Notas do aluno...">${al.notas || ''}</textarea>
+            
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:5px; margin-top:15px;">
+                ${meses.map(m => `<div class="day-btn ${al.historico.includes(m) ? 'active' : ''}" style="font-size:10px; padding:8px 2px; text-align:center;" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}
+            </div>
+            
+            <button class="btn" onclick="editarMatricula(${al.id})">EDITAR CADASTRO</button>
+            <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">VOLTAR</button>
+            
+            <button class="btn-danger" onclick="deletarMatricula(${al.id})">⚠️ EXCLUIR MATRÍCULA PERMANENTEMENTE</button>
+        `;
+        document.getElementById('modalFicha').style.display = 'flex';
+    }
+
+    function deletarMatricula(id) {
+        const al = alunos.find(a => a.id == id);
+        if (confirm(`CORPORAÇÃO GV13: Você tem certeza que deseja apagar a matrícula de ${al.nome}? Esta ação não pode ser desfeita.`)) {
+            alunos = alunos.filter(a => a.id !== id);
+            localStorage.setItem(DB_NAME, JSON.stringify(alunos));
+            fecharModais();
+            renderTudo();
+        }
+    }
+
+    function editarMatricula(id) {
+        const al = alunos.find(a => a.id == id);
+        fecharModais();
+        document.getElementById('modalCadastro').style.display = 'flex';
+        document.getElementById('edit-id').value = al.id;
+        document.getElementById('inNome').value = al.nome;
+        document.getElementById('inResp').value = al.resp;
+        document.getElementById('inTel').value = al.tel;
+        document.getElementById('inVenc').value = al.venc;
+        document.getElementById('inValor').value = al.valor;
+        document.getElementById('inHorario').value = al.horario;
+        document.getElementById('inStatus').value = al.status;
+        
+        document.querySelectorAll('#listaDiasCadastro .day-btn').forEach(btn => {
+            if(al.dias.includes(btn.innerText)) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+
+    function abrirModalCadastro() {
+        fecharModais();
+        document.getElementById('edit-id').value = "";
+        document.getElementById('inNome').value = "";
+        document.getElementById('inResp').value = "";
+        document.getElementById('inTel').value = "";
+        document.getElementById('inVenc').value = "";
+        document.getElementById('inValor').value = "";
+        document.querySelectorAll('#listaDiasCadastro .day-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('modalCadastro').style.display = 'flex';
+    }
+
+    function filtrarAgenda(dia, el) {
+        document.querySelectorAll('.day-selector .day-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        const lista = document.getElementById('lista-agenda');
+        lista.innerHTML = "";
+        ["13:00", "14:00", "15:00", "16:00"].forEach(h => {
+            const al = alunos.find(a => a.dias.includes(dia) && a.horario === h && a.status === 'Ativo');
+            lista.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee"><b>${h}</b> - ${al ? al.nome : '<span style="color:#ccc">Livre</span>'}</div>`;
+        });
+    }
+
+    function toggleMes(id, mes) {
+        const al = alunos.find(a => a.id == id);
+        if(al.historico.includes(mes)) al.historico = al.historico.filter(m => m !== mes);
+        else al.historico.push(mes);
+        localStorage.setItem(DB_NAME, JSON.stringify(alunos));
+        verFicha(id);
+        renderInicio();
     }
 
     function switchTab(tabId, el) {
@@ -204,114 +315,17 @@
     }
 
     function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-
-    function abrirModalCadastro() {
-        document.getElementById('tituloModal').innerText = "Novo Aluno";
-        document.getElementById('edit-id').value = "";
-        document.getElementById('inNome').value = "";
-        document.getElementById('inResp').value = "";
-        document.getElementById('inTel').value = "";
-        document.getElementById('inVenc').value = "";
-        document.getElementById('inValor').value = "";
-        document.getElementById('inStatus').value = "Ativo";
-        document.querySelectorAll('#inDias .day-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('modalCadastro').style.display = 'flex';
-    }
-
-    function salvarAluno() {
-        const id = document.getElementById('edit-id').value;
-        const diasAtivos = Array.from(document.querySelectorAll('#inDias .active')).map(b => b.innerText);
-        const novo = {
-            nome: document.getElementById('inNome').value,
-            resp: document.getElementById('inResp').value,
-            tel: document.getElementById('inTel').value,
-            venc: document.getElementById('inVenc').value,
-            valor: parseFloat(document.getElementById('inValor').value) || 0,
-            horario: document.getElementById('inHorario').value,
-            status: document.getElementById('inStatus').value,
-            dias: diasAtivos
-        };
-
-        if(id) {
-            const idx = alunos.findIndex(a => a.id == id);
-            alunos[idx] = { ...alunos[idx], ...novo };
-        } else {
-            alunos.push({ id: Date.now(), ...novo, historico: [], notas: "" });
-        }
-        
-        localStorage.setItem(DB_NAME, JSON.stringify(alunos));
-        fecharModais(); renderTudo();
-    }
-
-    function renderAlunos() {
-        const busca = document.getElementById('inputBusca').value.toLowerCase();
-        const container = document.getElementById('lista-alunos');
-        container.innerHTML = "";
-        alunos.filter(a => a.nome.toLowerCase().includes(busca))
-        .sort((a,b) => a.nome.localeCompare(b.nome))
-        .forEach(al => {
-            const badge = al.status === 'Suspenso' ? '<span class="status-badge status-suspenso">Suspenso</span>' : '<span class="status-badge status-ativo">Ativo</span>';
-            container.innerHTML += `<div class="item-aluno" onclick="verFicha(${al.id})"><div><strong>${al.nome}</strong> ${badge}<br><small>Vencimento: ${al.venc || '--'}</small></div><div><b>${al.horario}h</b></div></div>`;
-        });
-    }
-
-    function verFicha(id) {
-        const al = alunos.find(a => a.id == id);
-        document.getElementById('fichaCorpo').innerHTML = `
-            <h2>${al.nome}</h2>
-            <textarea onblur="salvarNota(${al.id}, this.value)" placeholder="Anotações...">${al.notas || ''}</textarea>
-            <div class="mes-grid">
-                ${meses.map(m => `<div class="mes-item ${al.historico.includes(m) ? 'mes-pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}
-            </div>
-            <button class="btn" onclick="editarMatricula(${al.id})">✏️ Editar</button>
-            <button class="btn btn-sec" onclick="fecharModais()">Voltar</button>
-        `;
-        document.getElementById('modalFicha').style.display = 'flex';
-    }
-
-    function editarMatricula(id) {
-        const al = alunos.find(a => a.id == id);
-        fecharModais(); abrirModalCadastro();
-        document.getElementById('edit-id').value = al.id;
-        document.getElementById('inNome').value = al.nome;
-        document.getElementById('inResp').value = al.resp;
-        document.getElementById('inTel').value = al.tel;
-        document.getElementById('inVenc').value = al.venc;
-        document.getElementById('inValor').value = al.valor;
-        document.getElementById('inHorario').value = al.horario;
-        document.getElementById('inStatus').value = al.status;
-        document.querySelectorAll('#inDias .day-btn').forEach(b => { if(al.dias.includes(b.innerText)) b.classList.add('active'); });
-    }
-
+    function salvarNota(id, t) { const al = alunos.find(a => a.id == id); al.notas = t; localStorage.setItem(DB_NAME, JSON.stringify(alunos)); }
     function renderInicio() {
         let r = 0, p = 0;
-        const mesF = new Date().toLocaleDateString('pt-BR', {month: 'long'}).replace(/^\w/, c => c.toUpperCase());
+        const mesF = meses[new Date().getMonth()];
         alunos.filter(a => a.status !== 'Suspenso').forEach(al => { if(al.historico.includes(mesF)) r += al.valor; else p += al.valor; });
         document.getElementById('dash-recebido').innerText = `R$ ${r.toFixed(2)}`;
         document.getElementById('dash-pendente').innerText = `R$ ${p.toFixed(2)}`;
         document.getElementById('hoje-data').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
     }
-
-    function filtrarAgenda(dia, el) {
-        if(el) { document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
-        const lista = document.getElementById('lista-agenda');
-        lista.innerHTML = `<h3>Agenda: ${dia}</h3>`;
-        ["13:00", "14:00", "15:00", "16:00"].forEach(h => {
-            const al = alunos.find(a => a.dias.includes(dia) && a.horario === h && a.status !== 'Suspenso');
-            lista.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee"><b>${h}</b> - ${al ? al.nome : '<span style="color:#ccc">Livre</span>'}</div>`;
-        });
-    }
-
-    function toggleMes(id, mes) {
-        const al = alunos.find(a => a.id == id);
-        if(al.historico.includes(mes)) al.historico = al.historico.filter(m => m !== mes);
-        else al.historico.push(mes);
-        localStorage.setItem(DB_NAME, JSON.stringify(alunos)); verFicha(id); renderInicio();
-    }
-
-    function salvarNota(id, t) { const al = alunos.find(a => a.id == id); al.notas = t; localStorage.setItem(DB_NAME, JSON.stringify(alunos)); }
-    function renderTudo() { renderInicio(); renderAlunos(); }
-    function exportarDados() { const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup.json"; a.click(); }
+    function renderTudo() { renderInicio(); renderAlunos(); filtrarAgenda('Segunda', document.querySelector('.day-btn')); }
+    function exportarDados() { const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "BACKUP_GV13.json"; a.click(); }
     function importarDados(e) { const reader = new FileReader(); reader.onload = ev => { alunos = JSON.parse(ev.target.result); localStorage.setItem(DB_NAME, JSON.stringify(alunos)); renderTudo(); }; reader.readAsText(e.target.files[0]); }
 </script>
 </body>
