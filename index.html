@@ -22,7 +22,6 @@
         .section.active { display: block; }
         .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #eee; }
 
-        /* GRID DE MESES */
         .grid-meses { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 15px 0; }
         .mes-btn { padding: 8px 2px; font-size: 10px; border-radius: 5px; border: 1px solid #ddd; background: #fff; cursor: pointer; text-align: center; }
         .mes-btn.pago { background: var(--success); color: white; border-color: var(--success); font-weight: bold; }
@@ -66,8 +65,8 @@
             <h2 id="hoje-data" style="margin: 0; font-size: 16px;"></h2>
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div class="card"><small>RECEBIDO</small><p id="dash-recebido" style="color:var(--success); font-weight:bold; margin:5px 0;">R$ 0,00</p></div>
-            <div class="card"><small>ALUNOS</small><p id="dash-alunos" style="font-weight:bold; margin:5px 0;">0</p></div>
+            <div class="card"><small>RECEBIDO (MÊS)</small><p id="dash-recebido" style="color:var(--success); font-weight:bold; margin:5px 0;">R$ 0,00</p></div>
+            <div class="card"><small>A RECEBER</small><p id="dash-pendente" style="color:var(--danger); font-weight:bold; margin:5px 0;">R$ 0,00</p></div>
         </div>
     </section>
 
@@ -126,7 +125,7 @@
 <div id="modalFicha" class="modal"><div class="modal-content" id="fichaCorpo"></div></div>
 
 <script>
-    const mesesPagamento = ["Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const mesesPagamento = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     const DB_NAME = 'gv13_v_final';
     let alunos = JSON.parse(localStorage.getItem(DB_NAME)) || [];
@@ -159,10 +158,34 @@
         } else { alert("Senha incorreta"); }
     }
 
+    function renderInicio() {
+        const dataAtual = new Date();
+        document.getElementById('hoje-data').innerText = dataAtual.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+        
+        const mesAtualNome = mesesPagamento[dataAtual.getMonth()];
+        let recebidoMes = 0;
+        let pendenteMes = 0;
+
+        alunos.forEach(al => {
+            const valor = parseFloat(al.valor) || 0;
+            const pagos = al.pagos || [];
+            if (pagos.includes(mesAtualNome)) {
+                recebidoMes += valor;
+            } else {
+                pendenteMes += valor;
+            }
+        });
+
+        document.getElementById('dash-recebido').innerText = `R$ ${recebidoMes.toFixed(2)}`;
+        document.getElementById('dash-pendente').innerText = `R$ ${pendenteMes.toFixed(2)}`;
+    }
+
     function salvarAluno() {
         const id = document.getElementById('edit-id').value;
         const grade = {};
         diasSemana.forEach(d => grade[d] = document.getElementById('h-' + d).value);
+
+        const alunoExistente = id ? alunos.find(a => a.id == id) : null;
 
         const dados = {
             id: id ? parseInt(id) : Date.now(),
@@ -172,7 +195,7 @@
             venc: document.getElementById('inVenc').value,
             valor: parseFloat(document.getElementById('inValor').value) || 0,
             grade: grade,
-            pagos: id ? (alunos.find(a => a.id == id).pagos || []) : []
+            pagos: alunoExistente ? (alunoExistente.pagos || []) : []
         };
 
         if(id) {
@@ -196,6 +219,7 @@
         }
         localStorage.setItem(DB_NAME, JSON.stringify(alunos));
         verFicha(alunoId);
+        renderInicio(); 
     }
 
     function renderAlunos() {
@@ -203,11 +227,7 @@
         const container = document.getElementById('lista-alunos');
         container.innerHTML = "";
         alunos.filter(a => a.nome.toLowerCase().includes(busca)).forEach(al => {
-            container.innerHTML += `
-                <div class="card" onclick="verFicha(${al.id})">
-                    <strong>${al.nome}</strong><br>
-                    <small>Vencimento: dia ${al.venc}</small>
-                </div>`;
+            container.innerHTML += `<div class="card" onclick="verFicha(${al.id})"><strong>${al.nome}</strong><br><small>Vencimento: dia ${al.venc}</small></div>`;
         });
     }
 
@@ -217,15 +237,9 @@
         document.getElementById('fichaCorpo').innerHTML = `
             <h2>${al.nome}</h2>
             <p>Valor: R$ ${al.valor.toFixed(2)} | Venc: ${al.venc}</p>
-            
             <div class="grid-meses">
-                ${mesesPagamento.map(m => `
-                    <div class="mes-btn ${al.pagos.includes(m) ? 'pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">
-                        ${m}
-                    </div>
-                `).join('')}
+                ${mesesPagamento.map(m => `<div class="mes-btn ${al.pagos.includes(m) ? 'pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}
             </div>
-
             <button class="btn" onclick="editarMatricula(${al.id})">EDITAR</button>
             <button class="btn" style="background:var(--danger)" onclick="deletarMatricula(${al.id})">EXCLUIR</button>
             <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">VOLTAR</button>
@@ -237,19 +251,13 @@
         const lista = document.getElementById('lista-agenda');
         lista.innerHTML = `<h3>${dia}</h3>`;
         ["13:00", "14:00", "15:00", "16:00"].forEach(h => {
-            const al = alunos.find(a => a.grade[dia] === h);
+            // CORRIGIDO AQUI: Adicionado a verificação (a.grade &&) para não quebrar a agenda
+            const al = alunos.find(a => a.grade && a.grade[dia] === h);
             lista.innerHTML += `<div class="card"><b>${h}</b> - ${al ? al.nome : 'Livre'}</div>`;
         });
     }
 
     function renderTudo() { renderAlunos(); renderInicio(); filtrarAgenda('Segunda'); }
-    function renderInicio() {
-        document.getElementById('hoje-data').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric' });
-        let total = 0;
-        alunos.forEach(a => total += (a.valor * (a.pagos ? a.pagos.length : 0)));
-        document.getElementById('dash-recebido').innerText = `R$ ${total.toFixed(2)}`;
-        document.getElementById('dash-alunos').innerText = alunos.length;
-    }
     function switchTab(tabId, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -260,18 +268,14 @@
     function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
     function exportarDados() {
         const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = "backup.json";
-        a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup.json"; a.click();
     }
     function importarDados(e) {
         const reader = new FileReader();
         reader.onload = ev => {
             alunos = JSON.parse(ev.target.result);
             localStorage.setItem(DB_NAME, JSON.stringify(alunos));
-            renderTudo();
-            alert("Ok!");
+            renderTudo(); alert("Ok!");
         };
         reader.readAsText(e.target.files[0]);
     }
@@ -285,7 +289,7 @@
         document.getElementById('inZap').value = al.zap;
         document.getElementById('inVenc').value = al.venc;
         document.getElementById('inValor').value = al.valor;
-        diasSemana.forEach(d => document.getElementById('h-' + d).value = al.grade[d] || "");
+        diasSemana.forEach(d => document.getElementById('h-' + d).value = al.grade ? al.grade[d] : "");
     }
     function abrirModalCadastro() {
         fecharModais();
