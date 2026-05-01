@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GV13 Studios</title>
     <style>
-        :root { --primary: #ff6b6b; --secondary: #4ecdc4; --dark: #2d3436; --light: #f8f9fa; --gray: #95a5a6; --danger: #e74c3c; --success: #27ae60; }
+        :root { --primary: #ff6b6b; --secondary: #4ecdc4; --dark: #2d3436; --light: #f8f9fa; --gray: #95a5a6; --danger: #e74c3c; --success: #27ae60; --gold: #ffd700; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding-bottom: 90px; color: var(--dark); }
         
         #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display: flex; align-items: center; justify-content: center; z-index: 9999; }
@@ -15,9 +15,13 @@
         .loader-bar { width: 0%; height: 4px; background: var(--primary); transition: width 3s linear; }
 
         #main-content { display: none; }
-        .app-header { background: white; padding: 10px; text-align: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .app-header { background: white; padding: 10px; text-align: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; transition: all 0.5s; }
         .app-header h1 { margin: 0; font-size: 14px; letter-spacing: 2px; }
         
+        /* ESTILO FESTIVO - 02 DE MAIO */
+        .header-festivo { background: var(--gold) !important; border-bottom: 3px solid #ffa500 !important; box-shadow: 0 4px 15px rgba(255,215,0,0.4); }
+        .msg-aniver { font-size: 11px; font-weight: bold; color: #b8860b; margin-top: 5px; display: none; }
+
         .section { display: none; padding: 15px; max-width: 600px; margin: auto; }
         .section.active { display: block; }
         .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #eee; }
@@ -29,7 +33,7 @@
         .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 15px; box-sizing: border-box; }
         .dia-item { display: flex; align-items: center; gap: 10px; background: #f8f9fa; padding: 8px; border-radius: 8px; margin-bottom: 5px; }
         .dia-item select { flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ddd; }
-        .dia-label { width: 70px; font-weight: bold; font-size: 12px; }
+        .dia-label { width: 80px; font-weight: bold; font-size: 11px; }
 
         .btn { background: var(--dark); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; }
 
@@ -58,7 +62,10 @@
 </div>
 
 <div id="main-content">
-    <div class="app-header"><h1>APRENDENDO COM AMOR</h1></div>
+    <div class="app-header" id="header-principal">
+        <h1>APRENDENDO COM AMOR</h1>
+        <div id="aniver-msg" class="msg-aniver">🥳 FELIZ ANIVERSÁRIO GERSON! (FUNDADOR) 🎂</div>
+    </div>
 
     <section id="aba-inicio" class="section active">
         <div class="card" style="background: var(--dark); color: white;">
@@ -78,12 +85,13 @@
 
     <section id="aba-agenda" class="section">
         <div style="display:flex; gap:5px; overflow-x:auto; padding-bottom:10px; margin-bottom:10px;">
-            <button class="btn" style="width:auto; padding:8px 15px; font-size:11px;" onclick="filtrarAgenda('Segunda')">SEG</button>
-            <button class="btn" style="width:auto; padding:8px 15px; font-size:11px;" onclick="filtrarAgenda('Terça')">TER</button>
-            <button class="btn" style="width:auto; padding:8px 15px; font-size:11px;" onclick="filtrarAgenda('Quarta')">QUA</button>
-            <button class="btn" style="width:auto; padding:8px 15px; font-size:11px;" onclick="filtrarAgenda('Quinta')">QUI</button>
-            <button class="btn" style="width:auto; padding:8px 15px; font-size:11px;" onclick="filtrarAgenda('Sexta')">SEX</button>
-            <button class="btn" style="width:auto; padding:8px 15px; font-size:11px; background:var(--secondary);" onclick="filtrarAgenda('Sábado')">SÁB</button>
+            <button class="btn" style="width:auto; padding:8px 15px; font-size:10px;" onclick="filtrarAgenda('Segunda')">SEG</button>
+            <button class="btn" style="width:auto; padding:8px 15px; font-size:10px;" onclick="filtrarAgenda('Terça')">TER</button>
+            <button class="btn" style="width:auto; padding:8px 15px; font-size:10px;" onclick="filtrarAgenda('Quarta')">QUA</button>
+            <button class="btn" style="width:auto; padding:8px 15px; font-size:10px;" onclick="filtrarAgenda('Quinta')">QUI</button>
+            <button class="btn" style="width:auto; padding:8px 15px; font-size:10px;" onclick="filtrarAgenda('Sexta')">SEX</button>
+            <button class="btn" style="width:auto; padding:8px 15px; font-size:10px; background:var(--secondary);" onclick="filtrarAgenda('Sábado')">SÁB (T)</button>
+            <button class="btn" style="width:auto; padding:8px 15px; font-size:10px; background:#f39c12;" onclick="filtrarAgenda('Sábado Manhã')">SÁB (M)</button>
         </div>
         <div id="lista-agenda"></div>
     </section>
@@ -126,23 +134,35 @@
 
 <script>
     const mesesPagamento = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+    const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Sábado Manhã"];
     const DB_NAME = 'gv13_v_final';
     let alunos = JSON.parse(localStorage.getItem(DB_NAME)) || [];
 
     const gradeDiv = document.getElementById('grade-inputs');
     diasSemana.forEach(dia => {
-        gradeDiv.innerHTML += `
-            <div class="dia-item">
-                <span class="dia-label">${dia}</span>
-                <select id="h-${dia}">
-                    <option value="">Livre</option>
-                    <option value="13:00">13h às 14h</option>
-                    <option value="14:00">14h às 15h</option>
-                    <option value="15:00">15h às 16h</option>
-                    <option value="16:00">16h às 17h</option>
+        const idLimpo = dia.replace(/\s+/g, '-');
+        if(dia === "Sábado Manhã") {
+            gradeDiv.innerHTML += `
+            <div class="dia-item" style="border-left: 5px solid #f39c12">
+                <span class="dia-label">Sáb Manhã</span>
+                <select id="h-${idLimpo}">
+                    <option value="">Nenhum</option>
+                    <option value="Aula 1">Aula 1</option><option value="Aula 2">Aula 2</option>
+                    <option value="Aula 3">Aula 3</option><option value="Aula 4">Aula 4</option>
+                    <option value="Aula 5">Aula 5</option>
                 </select>
             </div>`;
+        } else {
+            gradeDiv.innerHTML += `
+            <div class="dia-item">
+                <span class="dia-label">${dia}</span>
+                <select id="h-${idLimpo}">
+                    <option value="">Livre</option>
+                    <option value="13:00">13h às 14h</option><option value="14:00">14h às 15h</option>
+                    <option value="15:00">15h às 16h</option><option value="16:00">16h às 17h</option>
+                </select>
+            </div>`;
+        }
     });
 
     function checkLogin() {
@@ -153,40 +173,38 @@
             setTimeout(() => {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
+                verificarDataFestiva();
                 renderTudo();
-            }, 2000);
+            }, 1500);
         } else { alert("Senha incorreta"); }
+    }
+
+    function verificarDataFestiva() {
+        const hoje = new Date();
+        if(hoje.getDate() === 2 && (hoje.getMonth() + 1) === 5) {
+            document.getElementById('header-principal').classList.add('header-festivo');
+            document.getElementById('aniver-msg').style.display = 'block';
+        }
     }
 
     function renderInicio() {
         const dataAtual = new Date();
         document.getElementById('hoje-data').innerText = dataAtual.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-        
         const mesAtualNome = mesesPagamento[dataAtual.getMonth()];
-        let recebidoMes = 0;
-        let pendenteMes = 0;
-
+        let recebido = 0; let pendente = 0;
         alunos.forEach(al => {
-            const valor = parseFloat(al.valor) || 0;
-            const pagos = al.pagos || [];
-            if (pagos.includes(mesAtualNome)) {
-                recebidoMes += valor;
-            } else {
-                pendenteMes += valor;
-            }
+            const v = parseFloat(al.valor) || 0;
+            if ((al.pagos || []).includes(mesAtualNome)) recebido += v; else pendente += v;
         });
-
-        document.getElementById('dash-recebido').innerText = `R$ ${recebidoMes.toFixed(2)}`;
-        document.getElementById('dash-pendente').innerText = `R$ ${pendenteMes.toFixed(2)}`;
+        document.getElementById('dash-recebido').innerText = `R$ ${recebido.toFixed(2)}`;
+        document.getElementById('dash-pendente').innerText = `R$ ${pendente.toFixed(2)}`;
     }
 
     function salvarAluno() {
         const id = document.getElementById('edit-id').value;
         const grade = {};
-        diasSemana.forEach(d => grade[d] = document.getElementById('h-' + d).value);
-
+        diasSemana.forEach(d => grade[d] = document.getElementById('h-' + d.replace(/\s+/g, '-')).value);
         const alunoExistente = id ? alunos.find(a => a.id == id) : null;
-
         const dados = {
             id: id ? parseInt(id) : Date.now(),
             nome: document.getElementById('inNome').value,
@@ -197,35 +215,22 @@
             grade: grade,
             pagos: alunoExistente ? (alunoExistente.pagos || []) : []
         };
-
-        if(id) {
-            const idx = alunos.findIndex(a => a.id == id);
-            alunos[idx] = dados;
-        } else {
-            alunos.push(dados);
-        }
+        if(id) { const idx = alunos.findIndex(a => a.id == id); alunos[idx] = dados; } else { alunos.push(dados); }
         localStorage.setItem(DB_NAME, JSON.stringify(alunos));
-        fecharModais();
-        renderTudo();
+        fecharModais(); renderTudo();
     }
 
     function toggleMes(alunoId, mes) {
         const al = alunos.find(a => a.id == alunoId);
         al.pagos = al.pagos || [];
-        if(al.pagos.includes(mes)) {
-            al.pagos = al.pagos.filter(m => m !== mes);
-        } else {
-            al.pagos.push(mes);
-        }
+        if(al.pagos.includes(mes)) al.pagos = al.pagos.filter(m => m !== mes); else al.pagos.push(mes);
         localStorage.setItem(DB_NAME, JSON.stringify(alunos));
-        verFicha(alunoId);
-        renderInicio(); 
+        verFicha(alunoId); renderInicio();
     }
 
     function renderAlunos() {
         const busca = document.getElementById('inputBusca').value.toLowerCase();
-        const container = document.getElementById('lista-alunos');
-        container.innerHTML = "";
+        const container = document.getElementById('lista-alunos'); container.innerHTML = "";
         alunos.filter(a => a.nome.toLowerCase().includes(busca)).forEach(al => {
             container.innerHTML += `<div class="card" onclick="verFicha(${al.id})"><strong>${al.nome}</strong><br><small>Vencimento: dia ${al.venc}</small></div>`;
         });
@@ -233,12 +238,11 @@
 
     function verFicha(id) {
         const al = alunos.find(a => a.id == id);
-        al.pagos = al.pagos || [];
         document.getElementById('fichaCorpo').innerHTML = `
             <h2>${al.nome}</h2>
-            <p>Valor: R$ ${al.valor.toFixed(2)} | Venc: ${al.venc}</p>
+            <p>R$ ${al.valor.toFixed(2)} | Venc: ${al.venc}</p>
             <div class="grid-meses">
-                ${mesesPagamento.map(m => `<div class="mes-btn ${al.pagos.includes(m) ? 'pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}
+                ${mesesPagamento.map(m => `<div class="mes-btn ${(al.pagos || []).includes(m) ? 'pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}
             </div>
             <button class="btn" onclick="editarMatricula(${al.id})">EDITAR</button>
             <button class="btn" style="background:var(--danger)" onclick="deletarMatricula(${al.id})">EXCLUIR</button>
@@ -249,11 +253,11 @@
 
     function filtrarAgenda(dia) {
         const lista = document.getElementById('lista-agenda');
-        lista.innerHTML = `<h3>${dia}</h3>`;
-        ["13:00", "14:00", "15:00", "16:00"].forEach(h => {
-            // CORRIGIDO AQUI: Adicionado a verificação (a.grade &&) para não quebrar a agenda
-            const al = alunos.find(a => a.grade && a.grade[dia] === h);
-            lista.innerHTML += `<div class="card"><b>${h}</b> - ${al ? al.nome : 'Livre'}</div>`;
+        lista.innerHTML = `<h3>${dia.toUpperCase()}</h3>`;
+        const slots = (dia === 'Sábado Manhã') ? ["Aula 1", "Aula 2", "Aula 3", "Aula 4", "Aula 5"] : ["13:00", "14:00", "15:00", "16:00"];
+        slots.forEach(s => {
+            const al = alunos.find(a => a.grade && a.grade[dia] === s);
+            lista.innerHTML += `<div class="card"><b>${s}</b> - ${al ? al.nome : 'Livre'}</div>`;
         });
     }
 
@@ -261,27 +265,25 @@
     function switchTab(tabId, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        el.classList.add('active');
+        document.getElementById(tabId).classList.add('active'); el.classList.add('active');
         renderTudo();
     }
     function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
     function exportarDados() {
         const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup.json"; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup_gv13.json"; a.click();
     }
     function importarDados(e) {
         const reader = new FileReader();
         reader.onload = ev => {
             alunos = JSON.parse(ev.target.result);
             localStorage.setItem(DB_NAME, JSON.stringify(alunos));
-            renderTudo(); alert("Ok!");
+            renderTudo(); alert("Dados Importados!");
         };
         reader.readAsText(e.target.files[0]);
     }
     function editarMatricula(id) {
-        const al = alunos.find(a => a.id == id);
-        fecharModais();
+        const al = alunos.find(a => a.id == id); fecharModais();
         document.getElementById('modalCadastro').style.display = 'flex';
         document.getElementById('edit-id').value = al.id;
         document.getElementById('inNome').value = al.nome;
@@ -289,16 +291,21 @@
         document.getElementById('inZap').value = al.zap;
         document.getElementById('inVenc').value = al.venc;
         document.getElementById('inValor').value = al.valor;
-        diasSemana.forEach(d => document.getElementById('h-' + d).value = al.grade ? al.grade[d] : "");
+        diasSemana.forEach(d => {
+            const select = document.getElementById('h-' + d.replace(/\s+/g, '-'));
+            if(select) select.value = (al.grade && al.grade[d]) ? al.grade[d] : "";
+        });
     }
     function abrirModalCadastro() {
-        fecharModais();
-        document.getElementById('edit-id').value = "";
+        fecharModais(); document.getElementById('edit-id').value = "";
         document.getElementById('inNome').value = "";
-        diasSemana.forEach(d => document.getElementById('h-' + d).value = "");
+        diasSemana.forEach(d => {
+            const select = document.getElementById('h-' + d.replace(/\s+/g, '-'));
+            if(select) select.value = "";
+        });
         document.getElementById('modalCadastro').style.display = 'flex';
     }
-    function deletarMatricula(id) { if(confirm("Apagar?")) { alunos = alunos.filter(a => a.id !== id); localStorage.setItem(DB_NAME, JSON.stringify(alunos)); fecharModais(); renderTudo(); } }
+    function deletarMatricula(id) { if(confirm("Apagar aluno?")) { alunos = alunos.filter(a => a.id !== id); localStorage.setItem(DB_NAME, JSON.stringify(alunos)); fecharModais(); renderTudo(); } }
 </script>
 </body>
 </html>
