@@ -34,14 +34,29 @@
         input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
 
         /* AREA DO RECIBO */
-        #area-recibo { display: none; background: white; padding: 30px; border: 1px solid #000; margin: 10px; color: black; line-height: 1.6; }
+        #area-recibo { display: none; background: white; padding: 40px; border: 1px solid #000; margin: 10px; color: black; line-height: 1.8; }
         
-        /* REGRA PARA SUMIR COM OS BOTÕES NA HORA DE IMPRIMIR */
+        /* --- CONFIGURAÇÃO DE IMPRESSÃO --- */
         @media print {
-            body * { visibility: hidden; }
-            #area-recibo, #area-recibo * { visibility: visible; }
-            #area-recibo { position: absolute; left: 0; top: 0; width: 100%; border: none; }
-            .no-print { display: none !important; visibility: hidden !important; }
+            /* Esconde absolutamente tudo da página */
+            body, html, #main-content, .bottom-nav, .modal, #login-screen { 
+                display: none !important; 
+            }
+            /* Mostra apenas a área do recibo */
+            #area-recibo { 
+                display: block !important; 
+                position: absolute; 
+                top: 0; 
+                left: 0; 
+                width: 100%; 
+                border: none !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+            }
+            /* Esconde os botões dentro do recibo */
+            .no-print { 
+                display: none !important; 
+            }
         }
     </style>
 </head>
@@ -108,10 +123,10 @@
 
 <div id="area-recibo">
     <center>
-        <h1 style="margin:0; font-size: 24px;">APRENDENDO COM AMOR</h1>
-        <p style="margin:5px 0;">Reforço Escolar</p>
-        <div style="border-top: 1px dashed #000; margin: 15px 0;"></div>
-        <h2 style="font-size:18px;">RECIBO DE PAGAMENTO</h2>
+        <h1 style="margin:0; font-size: 26px;">APRENDENDO COM AMOR</h1>
+        <p style="margin:5px 0; font-size: 14px;">Reforço Escolar</p>
+        <div style="border-top: 1px solid #000; margin: 20px 0;"></div>
+        <h2 style="font-size:18px; text-decoration: underline;">RECIBO DE PAGAMENTO</h2>
     </center>
     <br>
     <p><strong>ALUNO:</strong> <span id="rec-aluno"></span></p>
@@ -121,32 +136,25 @@
     <br>
     <p><strong>VALOR PAGO:</strong> R$ _________________________</p>
     <p><strong>DATA:</strong> ____ / ____ / 2026</p>
-    <br><br>
+    <br><br><br>
     <center>
         <p>__________________________________________</p>
-        <p>Assinatura Responsável</p>
-        <div class="no-print" style="margin-top:20px;">
+        <p style="font-size: 12px;">Assinatura do Responsável</p>
+        
+        <div class="no-print" style="margin-top:40px;">
             <button class="btn" style="background:var(--success); width:150px;" onclick="window.print()">IMPRIMIR</button>
             <button class="btn" style="background:var(--gray); width:150px;" onclick="fecharRecibo()">VOLTAR</button>
         </div>
     </center>
 </div>
 
-<div id="modalFicha" class="modal">
-    <div class="modal-content" id="fichaCorpo"></div>
-</div>
-
+<div id="modalFicha" class="modal"><div class="modal-content" id="fichaCorpo"></div></div>
 <div id="modalCadastro" class="modal">
     <div class="modal-content">
         <h2>Matrícula</h2>
-        <input type="hidden" id="edit-id">
-        <input type="text" id="inNome" placeholder="Criança">
-        <input type="text" id="inPai" placeholder="Responsável">
-        <input type="text" id="inZap" placeholder="WhatsApp">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <input type="number" id="inVenc" placeholder="Venc.">
-            <input type="number" id="inValor" placeholder="Valor R$">
-        </div>
+        <input type="hidden" id="edit-id"><input type="text" id="inNome" placeholder="Criança">
+        <input type="text" id="inPai" placeholder="Responsável"><input type="text" id="inZap" placeholder="WhatsApp">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><input type="number" id="inVenc" placeholder="Venc."><input type="number" id="inValor" placeholder="Valor R$"></div>
         <div id="grade-inputs" style="margin-top:10px;"></div>
         <button class="btn" style="background:var(--primary); margin-top:15px;" onclick="salvarAluno()">SALVAR</button>
         <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">FECHAR</button>
@@ -161,158 +169,63 @@
     const gradeDiv = document.getElementById('grade-inputs');
     diasSemana.forEach(dia => {
         const idLimpo = dia.replace(/\s+/g, '-');
-        gradeDiv.innerHTML += `<div style="display:flex; align-items:center; gap:5px; margin-bottom:5px;">
-            <span style="font-size:10px; width:70px;">${dia}</span>
-            <select id="h-${idLimpo}">
-                <option value="">Livre</option>
-                ${dia === "Sábado Manhã" ? '<option value="Aula 1">Aula 1</option><option value="Aula 2">Aula 2</option><option value="Aula 3">Aula 3</option><option value="Aula 4">Aula 4</option><option value="Aula 5">Aula 5</option>' : 
-                '<option value="13:00">13h-14h</option><option value="14:00">14h-15h</option><option value="15:00">15h-16h</option><option value="16:00">16h-17h</option>'}
-            </select>
-        </div>`;
+        gradeDiv.innerHTML += `<div style="display:flex; align-items:center; gap:5px; margin-bottom:5px;"><span style="font-size:10px; width:70px;">${dia}</span>
+        <select id="h-${idLimpo}"><option value="">Livre</option>
+        ${dia === "Sábado Manhã" ? '<option value="Aula 1">Aula 1</option><option value="Aula 2">Aula 2</option><option value="Aula 3">Aula 3</option><option value="Aula 4">Aula 4</option><option value="Aula 5">Aula 5</option>' : 
+        '<option value="13:00">13h-14h</option><option value="14:00">14h-15h</option><option value="15:00">15h-16h</option><option value="16:00">16h-17h</option>'}</select></div>`;
     });
 
-    function checkLogin() {
-        if(document.getElementById('pass-input').value === "reforco") {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            renderTudo();
-        } else { alert("Senha incorreta!"); }
-    }
-
+    function checkLogin() { if(document.getElementById('pass-input').value === "reforco") { document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-content').style.display = 'block'; renderTudo(); } else { alert("Senha incorreta!"); } }
     function renderTudo() { renderAlunos(); renderInicio(); filtrarAgenda('Segunda'); }
-
     function renderInicio() {
-        const data = new Date();
-        document.getElementById('hoje-data').innerText = data.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-        const mesAtual = mesesPagamento[data.getMonth()];
-        let rec = 0; let pen = 0;
+        const data = new Date(); document.getElementById('hoje-data').innerText = data.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+        const mesAtual = mesesPagamento[data.getMonth()]; let rec = 0; let pen = 0;
         alunos.forEach(al => { if ((al.pagos || []).includes(mesAtual)) rec += al.valor; else pen += al.valor; });
-        document.getElementById('dash-recebido').innerText = `R$ ${rec.toFixed(2)}`;
-        document.getElementById('dash-pendente').innerText = `R$ ${pen.toFixed(2)}`;
+        document.getElementById('dash-recebido').innerText = `R$ ${rec.toFixed(2)}`; document.getElementById('dash-pendente').innerText = `R$ ${pen.toFixed(2)}`;
     }
-
     function renderAlunos() {
-        const container = document.getElementById('lista-alunos');
-        container.innerHTML = "";
+        const container = document.getElementById('lista-alunos'); container.innerHTML = "";
         const busca = document.getElementById('inputBusca').value.toLowerCase();
-        alunos.filter(a => a.nome.toLowerCase().includes(busca)).forEach(al => {
-            container.innerHTML += `<div class="card" onclick="verFicha(${al.id})"><strong>${al.nome}</strong><br><small>${al.pai}</small></div>`;
-        });
+        alunos.filter(a => a.nome.toLowerCase().includes(busca)).forEach(al => { container.innerHTML += `<div class="card" onclick="verFicha(${al.id})"><strong>${al.nome}</strong><br><small>${al.pai}</small></div>`; });
     }
-
     function verFicha(id) {
-        const al = alunos.find(a => a.id == id);
-        const mesAtual = mesesPagamento[new Date().getMonth()];
-        document.getElementById('fichaCorpo').innerHTML = `
-            <h2>${al.nome}</h2>
-            <div class="grid-meses">
-                ${mesesPagamento.map(m => `<div class="mes-btn ${(al.pagos || []).includes(m) ? 'pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}
-            </div>
-            <button class="btn" style="background:var(--secondary)" onclick="gerarRecibo(${al.id}, '${mesAtual}')">📄 RECIBO ${mesAtual}</button>
-            <button class="btn" onclick="editarMatricula(${al.id})">EDITAR</button>
-            <button class="btn" style="background:var(--danger)" onclick="deletarMatricula(${al.id})">EXCLUIR</button>
-            <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">VOLTAR</button>
-        `;
+        const al = alunos.find(a => a.id == id); const mesAtual = mesesPagamento[new Date().getMonth()];
+        document.getElementById('fichaCorpo').innerHTML = `<h2>${al.nome}</h2><div class="grid-meses">${mesesPagamento.map(m => `<div class="mes-btn ${(al.pagos || []).includes(m) ? 'pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}</div>
+        <button class="btn" style="background:var(--secondary)" onclick="gerarRecibo(${al.id}, '${mesAtual}')">📄 RECIBO ${mesAtual}</button><button class="btn" onclick="editarMatricula(${al.id})">EDITAR</button>
+        <button class="btn" style="background:var(--danger)" onclick="deletarMatricula(${al.id})">EXCLUIR</button><button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">VOLTAR</button>`;
         document.getElementById('modalFicha').style.display = 'flex';
     }
-
     function gerarRecibo(id, mes) {
-        const al = alunos.find(a => a.id == id);
-        document.getElementById('rec-aluno').innerText = al.nome;
-        document.getElementById('rec-pai').innerText = al.pai;
-        document.getElementById('rec-zap').innerText = al.zap;
-        document.getElementById('rec-mes').innerText = mes;
-        document.getElementById('main-content').style.display = 'none';
-        document.getElementById('modalFicha').style.display = 'none';
-        document.getElementById('area-recibo').style.display = 'block';
+        const al = alunos.find(a => a.id == id); document.getElementById('rec-aluno').innerText = al.nome; document.getElementById('rec-pai').innerText = al.pai; document.getElementById('rec-zap').innerText = al.zap; document.getElementById('rec-mes').innerText = mes;
+        document.getElementById('main-content').style.display = 'none'; document.getElementById('modalFicha').style.display = 'none'; document.getElementById('area-recibo').style.display = 'block';
     }
-
-    function fecharRecibo() {
-        document.getElementById('area-recibo').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-    }
-
+    function fecharRecibo() { document.getElementById('area-recibo').style.display = 'none'; document.getElementById('main-content').style.display = 'block'; }
     function toggleMes(alunoId, mes) {
-        const al = alunos.find(a => a.id == alunoId);
-        al.pagos = al.pagos || [];
+        const al = alunos.find(a => a.id == alunoId); al.pagos = al.pagos || [];
         if(al.pagos.includes(mes)) al.pagos = al.pagos.filter(m => m !== mes); else al.pagos.push(mes);
-        localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
-        verFicha(alunoId); renderInicio();
+        localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); verFicha(alunoId); renderInicio();
     }
-
     function filtrarAgenda(dia) {
-        const lista = document.getElementById('lista-agenda');
-        lista.innerHTML = `<h3>${dia.toUpperCase()}</h3>`;
+        const lista = document.getElementById('lista-agenda'); lista.innerHTML = `<h3>${dia.toUpperCase()}</h3>`;
         const slots = (dia === 'Sábado Manhã') ? ["Aula 1", "Aula 2", "Aula 3", "Aula 4", "Aula 5"] : ["13:00", "14:00", "15:00", "16:00"];
-        slots.forEach(s => {
-            const al = alunos.find(a => a.grade && a.grade[dia] === s);
-            lista.innerHTML += `<div class="card"><b>${s}</b> - ${al ? al.nome : 'Livre'}</div>`;
-        });
+        slots.forEach(s => { const al = alunos.find(a => a.grade && a.grade[dia] === s); lista.innerHTML += `<div class="card"><b>${s}</b> - ${al ? al.nome : 'Livre'}</div>`; });
     }
-
     function salvarAluno() {
-        const id = document.getElementById('edit-id').value;
-        const grade = {};
+        const id = document.getElementById('edit-id').value; const grade = {};
         diasSemana.forEach(d => grade[d] = document.getElementById('h-' + d.replace(/\s+/g, '-')).value);
-        const dados = {
-            id: id ? parseInt(id) : Date.now(),
-            nome: document.getElementById('inNome').value,
-            pai: document.getElementById('inPai').value,
-            zap: document.getElementById('inZap').value,
-            venc: document.getElementById('inVenc').value,
-            valor: parseFloat(document.getElementById('inValor').value) || 0,
-            grade: grade,
-            pagos: id ? (alunos.find(a => a.id == id).pagos || []) : []
-        };
+        const dados = { id: id ? parseInt(id) : Date.now(), nome: document.getElementById('inNome').value, pai: document.getElementById('inPai').value, zap: document.getElementById('inZap').value, venc: document.getElementById('inVenc').value, valor: parseFloat(document.getElementById('inValor').value) || 0, grade: grade, pagos: id ? (alunos.find(a => a.id == id).pagos || []) : [] };
         if(id) { const idx = alunos.findIndex(a => a.id == id); alunos[idx] = dados; } else { alunos.push(dados); }
-        localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
-        fecharModais(); renderTudo();
+        localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); fecharModais(); renderTudo();
     }
-
-    function switchTab(tabId, el) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active'); el.classList.add('active');
-        renderTudo();
-    }
-
+    function switchTab(tabId, el) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById(tabId).classList.add('active'); el.classList.add('active'); renderTudo(); }
     function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-    
-    function exportarDados() {
-        const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup_aprendendo.json"; a.click();
-    }
-    function importarDados(e) {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            alunos = JSON.parse(ev.target.result);
-            localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
-            renderTudo(); alert("Dados Restaurados!");
-        };
-        reader.readAsText(e.target.files[0]);
-    }
-
+    function exportarDados() { const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup_aprendendo.json"; a.click(); }
+    function importarDados(e) { const reader = new FileReader(); reader.onload = ev => { alunos = JSON.parse(ev.target.result); localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); renderTudo(); alert("Dados Restaurados!"); }; reader.readAsText(e.target.files[0]); }
     function editarMatricula(id) {
-        const al = alunos.find(a => a.id == id);
-        fecharModais();
-        document.getElementById('modalCadastro').style.display = 'flex';
-        document.getElementById('edit-id').value = al.id;
-        document.getElementById('inNome').value = al.nome;
-        document.getElementById('inPai').value = al.pai;
-        document.getElementById('inZap').value = al.zap;
-        document.getElementById('inVenc').value = al.venc;
-        document.getElementById('inValor').value = al.valor;
-        diasSemana.forEach(d => {
-            document.getElementById('h-' + d.replace(/\s+/g, '-')).value = (al.grade && al.grade[d]) ? al.grade[d] : "";
-        });
+        const al = alunos.find(a => a.id == id); fecharModais(); document.getElementById('modalCadastro').style.display = 'flex'; document.getElementById('edit-id').value = al.id; document.getElementById('inNome').value = al.nome; document.getElementById('inPai').value = al.pai; document.getElementById('inZap').value = al.zap; document.getElementById('inVenc').value = al.venc; document.getElementById('inValor').value = al.valor;
+        diasSemana.forEach(d => { document.getElementById('h-' + d.replace(/\s+/g, '-')).value = (al.grade && al.grade[d]) ? al.grade[d] : ""; });
     }
-
-    function abrirModalCadastro() {
-        fecharModais(); document.getElementById('edit-id').value = "";
-        document.getElementById('inNome').value = "";
-        document.getElementById('modalCadastro').style.display = 'flex';
-    }
-
+    function abrirModalCadastro() { fecharModais(); document.getElementById('edit-id').value = ""; document.getElementById('inNome').value = ""; document.getElementById('modalCadastro').style.display = 'flex'; }
     function deletarMatricula(id) { if(confirm("Apagar aluno?")) { alunos = alunos.filter(a => a.id !== id); localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); fecharModais(); renderTudo(); } }
 </script>
 </body>
