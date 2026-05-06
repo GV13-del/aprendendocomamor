@@ -36,11 +36,12 @@
         /* AREA DO RECIBO */
         #area-recibo { display: none; background: white; padding: 30px; border: 1px solid #000; margin: 10px; color: black; line-height: 1.6; }
         
+        /* REGRA PARA SUMIR COM OS BOTÕES NA HORA DE IMPRIMIR */
         @media print {
-            body * { display: none !important; }
-            #area-recibo, #area-recibo * { display: block !important; }
-            #area-recibo { position: absolute; top: 0; left: 0; width: 100%; border: none; }
-            .no-print { display: none !important; }
+            body * { visibility: hidden; }
+            #area-recibo, #area-recibo * { visibility: visible; }
+            #area-recibo { position: absolute; left: 0; top: 0; width: 100%; border: none; }
+            .no-print { display: none !important; visibility: hidden !important; }
         }
     </style>
 </head>
@@ -91,7 +92,6 @@
     <section id="aba-sistema" class="section">
         <div class="card">
             <h3>Backup dos Dados</h3>
-            <p style="font-size:12px; color:var(--gray);">Sempre baixe o backup para não perder nada.</p>
             <button class="btn" style="background:var(--success)" onclick="exportarDados()">EXPORTAR (BAIXAR)</button>
             <input type="file" id="importFile" style="display:none;" onchange="importarDados(event)">
             <button class="btn" style="background:var(--gray); margin-top:10px;" onclick="document.getElementById('importFile').click()">IMPORTAR (RESTAURAR)</button>
@@ -124,9 +124,9 @@
     <br><br>
     <center>
         <p>__________________________________________</p>
-        <p>Assinatura</p>
+        <p>Assinatura Responsável</p>
         <div class="no-print" style="margin-top:20px;">
-            <button class="btn" style="background:var(--success); width:150px;" onclick="dispararImpressao()">IMPRIMIR</button>
+            <button class="btn" style="background:var(--success); width:150px;" onclick="window.print()">IMPRIMIR</button>
             <button class="btn" style="background:var(--gray); width:150px;" onclick="fecharRecibo()">VOLTAR</button>
         </div>
     </center>
@@ -176,12 +176,10 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
             renderTudo();
-        } else { alert("Senha errada!"); }
+        } else { alert("Senha incorreta!"); }
     }
 
-    function renderTudo() {
-        renderAlunos(); renderInicio(); filtrarAgenda('Segunda');
-    }
+    function renderTudo() { renderAlunos(); renderInicio(); filtrarAgenda('Segunda'); }
 
     function renderInicio() {
         const data = new Date();
@@ -227,10 +225,6 @@
         document.getElementById('main-content').style.display = 'none';
         document.getElementById('modalFicha').style.display = 'none';
         document.getElementById('area-recibo').style.display = 'block';
-    }
-
-    function dispararImpressao() {
-        window.print();
     }
 
     function fecharRecibo() {
