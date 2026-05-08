@@ -33,40 +33,37 @@
         .modal-content { background: white; padding: 25px; border-radius: 25px 25px 0 0; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
         input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
 
-        /* AREAS DE IMPRESSÃO */
-        #area-matricula { display: none; background: white; padding: 40px; color: black; line-height: 1.8; }
-        
-        /* RECIBO FINO E ESTREITO */
-        #area-recibo { 
-            display: none; 
-            background: white; 
-            padding: 20px; 
-            color: black; 
-            line-height: 1.6; 
-            max-width: 350px; /* Deixa o recibo estreito */
-            margin: 20px auto;
-            border: 1px solid #333; /* Borda estreita */
+        /* --- CONFIGURAÇÕES DE IMPRESSÃO --- */
+        #area-recibo, #area-matricula { display: none; background: white; color: black; }
+
+        @media print {
+            body { background: white; }
+            #main-content, .modal, .bottom-nav, .no-print { display: none !important; }
+            
+            #area-matricula { 
+                display: block !important; 
+                padding: 40px; 
+                line-height: 1.8;
+            }
+
+            #area-recibo { 
+                display: block !important; 
+                width: 80mm; 
+                margin: 0 auto;
+                padding: 10px;
+                border: 1px solid #000;
+                line-height: 1.4;
+            }
         }
 
+        /* Estilo visual da ficha na tela */
+        #area-matricula { padding: 40px; line-height: 1.8; max-width: 800px; margin: auto; }
         .doc-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
         .doc-section { margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .doc-section h3 { margin: 0; font-size: 14px; text-transform: uppercase; background: #f0f0f0; padding: 5px; }
-
-        @media print {
-            body * { visibility: hidden; }
-            #area-recibo, #area-recibo *, #area-matricula, #area-matricula * { visibility: visible; }
-            #area-recibo { 
-                display: block !important; 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 80mm; /* Largura padrão de cupom/recibo fino */
-                border: 1px solid #000 !important; 
-                padding: 10px !important;
-            }
-            #area-matricula { display: block !important; position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 20px; }
-            .no-print { display: none !important; }
-        }
+        
+        /* Estilo visual do recibo na tela */
+        #area-recibo { max-width: 350px; margin: 20px auto; padding: 20px; border: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -164,7 +161,7 @@
         
         <div class="no-print" style="margin-top:30px;">
             <button class="btn" style="background:var(--success); width:180px;" onclick="window.print()">IMPRIMIR AGORA</button>
-            <button class="btn" style="background:var(--gray); width:180px;" onclick="fecharRecibo()">VOLTAR</button>
+            <button class="btn" style="background:var(--gray); width:180px;" onclick="fecharDocumentos()">VOLTAR</button>
         </div>
     </center>
 </div>
@@ -179,9 +176,9 @@
     
     <div style="font-size: 13px;">
         <p><strong>ALUNO:</strong> <br><span id="rec-aluno"></span></p>
-        <p><strong>REFERENTE A:</strong> <span id="rec-mes"></span>/2026</p>
+        <p><strong>REFERENTE A:</strong> <span id="rec-mes"></span>/<span class="ano-atual"></span></p>
         <p><strong>VALOR:</strong> R$ _________________</p>
-        <p><strong>DATA:</strong> ____/____/2026</p>
+        <p><strong>DATA:</strong> ____/____/<span class="ano-atual"></span></p>
     </div>
 
     <div style="border-bottom: 1px dashed #000; margin: 15px 0;"></div>
@@ -192,8 +189,8 @@
         <small>Assinatura Responsável</small>
         
         <div class="no-print" style="margin-top:20px;">
-            <button class="btn" style="padding: 5px; font-size: 10px;" onclick="window.print()">IMPRIMIR</button>
-            <button class="btn" style="padding: 5px; font-size: 10px; background:var(--gray);" onclick="fecharRecibo()">VOLTAR</button>
+            <button class="btn" style="padding: 10px; background:var(--success);" onclick="window.print()">IMPRIMIR</button>
+            <button class="btn" style="padding: 10px; background:var(--gray);" onclick="fecharDocumentos()">VOLTAR</button>
         </div>
     </center>
 </div>
@@ -221,6 +218,9 @@
     const mesesPagamento = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Sábado Manhã"];
     let alunos = JSON.parse(localStorage.getItem('gv13_v_final')) || [];
+
+    // Preenche o ano atual automaticamente nos recibos
+    document.querySelectorAll('.ano-atual').forEach(el => el.innerText = new Date().getFullYear());
 
     const gradeDiv = document.getElementById('grade-inputs');
     diasSemana.forEach(dia => {
@@ -307,15 +307,21 @@
     }
 
     function abrirDocumento(id) {
+        // Esconde tudo primeiro para evitar sobreposição
         document.getElementById('main-content').style.display = 'none';
+        document.getElementById('area-recibo').style.display = 'none';
+        document.getElementById('area-matricula').style.display = 'none';
+        
+        // Mostra só o documento solicitado
         document.getElementById(id).style.display = 'block';
         fecharModais();
     }
 
-    function fecharRecibo() {
+    function fecharDocumentos() {
         document.getElementById('area-recibo').style.display = 'none';
         document.getElementById('area-matricula').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
+        renderTudo();
     }
 
     function salvarAluno() {
@@ -366,14 +372,16 @@
     
     function exportarDados() {
         const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup.json"; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup-reforco.json"; a.click();
     }
     function importarDados(e) {
         const reader = new FileReader();
         reader.onload = ev => {
-            alunos = JSON.parse(ev.target.result);
-            localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
-            renderTudo(); alert("Restaurado!");
+            try {
+                alunos = JSON.parse(ev.target.result);
+                localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
+                renderTudo(); alert("Dados restaurados com sucesso!");
+            } catch(e) { alert("Arquivo inválido!"); }
         };
         reader.readAsText(e.target.files[0]);
     }
@@ -397,7 +405,7 @@
         document.getElementById('modalCadastro').style.display = 'flex';
     }
 
-    function deletarMatricula(id) { if(confirm("Apagar?")) { alunos = alunos.filter(a => a.id !== id); localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); fecharModais(); renderTudo(); } }
+    function deletarMatricula(id) { if(confirm("Tem certeza que deseja excluir permanentemente este aluno?")) { alunos = alunos.filter(a => a.id !== id); localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); fecharModais(); renderTudo(); } }
 </script>
 </body>
 </html>
