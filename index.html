@@ -17,13 +17,13 @@
 
         .section { display: none; padding: 15px; max-width: 600px; margin: auto; }
         .section.active { display: block; }
-        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #eee; }
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #eee; cursor: pointer; }
 
         .grid-meses { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 15px 0; }
         .mes-btn { padding: 8px 2px; font-size: 10px; border-radius: 5px; border: 1px solid #ddd; background: #fff; cursor: pointer; text-align: center; }
         .mes-btn.pago { background: var(--success); color: white; border-color: var(--success); font-weight: bold; }
 
-        .btn { background: var(--dark); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; text-transform: uppercase; font-size: 12px; }
+        .btn { background: var(--dark); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; text-transform: uppercase; font-size: 11px; }
         
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
         .nav-item { border: none; background: none; color: var(--gray); font-size: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
@@ -33,30 +33,39 @@
         .modal-content { background: white; padding: 25px; border-radius: 25px 25px 0 0; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
         input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
 
-        /* AREA DO RECIBO */
-        #area-recibo { display: none; background: white; padding: 40px; border: 1px solid #000; margin: 10px; color: black; line-height: 1.8; }
+        /* AREAS DE IMPRESSÃO */
+        #area-matricula { display: none; background: white; padding: 40px; color: black; line-height: 1.8; }
         
-        /* --- CONFIGURAÇÃO DE IMPRESSÃO --- */
+        /* RECIBO FINO E ESTREITO */
+        #area-recibo { 
+            display: none; 
+            background: white; 
+            padding: 20px; 
+            color: black; 
+            line-height: 1.6; 
+            max-width: 350px; /* Deixa o recibo estreito */
+            margin: 20px auto;
+            border: 1px solid #333; /* Borda estreita */
+        }
+
+        .doc-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
+        .doc-section { margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .doc-section h3 { margin: 0; font-size: 14px; text-transform: uppercase; background: #f0f0f0; padding: 5px; }
+
         @media print {
-            /* Esconde absolutamente tudo da página */
-            body, html, #main-content, .bottom-nav, .modal, #login-screen { 
-                display: none !important; 
-            }
-            /* Mostra apenas a área do recibo */
+            body * { visibility: hidden; }
+            #area-recibo, #area-recibo *, #area-matricula, #area-matricula * { visibility: visible; }
             #area-recibo { 
                 display: block !important; 
                 position: absolute; 
-                top: 0; 
                 left: 0; 
-                width: 100%; 
-                border: none !important; 
-                padding: 0 !important; 
-                margin: 0 !important;
+                top: 0; 
+                width: 80mm; /* Largura padrão de cupom/recibo fino */
+                border: 1px solid #000 !important; 
+                padding: 10px !important;
             }
-            /* Esconde os botões dentro do recibo */
-            .no-print { 
-                display: none !important; 
-            }
+            #area-matricula { display: block !important; position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 20px; }
+            .no-print { display: none !important; }
         }
     </style>
 </head>
@@ -65,51 +74,51 @@
 <div id="login-screen">
     <div class="login-box">
         <h1 style="font-size: 20px;">GV13 STUDIOS</h1>
-        <input type="password" id="pass-input" placeholder="Senha de Acesso" style="text-align:center;">
+        <input type="password" id="pass-input" placeholder="Senha" style="text-align:center;">
         <button class="btn" style="background:var(--primary)" onclick="checkLogin()">ENTRAR</button>
     </div>
 </div>
 
 <div id="main-content">
-    <div class="app-header">
-        <h1>APRENDENDO COM AMOR</h1>
-    </div>
+    <div class="app-header"><h1>APRENDENDO COM AMOR</h1></div>
 
     <section id="aba-inicio" class="section active">
-        <div class="card" style="background: var(--dark); color: white;">
-            <h2 id="hoje-data" style="margin: 0; font-size: 16px;"></h2>
-        </div>
+        <div class="card" style="background: var(--dark); color: white;"><h2 id="hoje-data" style="margin: 0; font-size: 16px;"></h2></div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div class="card"><small>RECEBIDO (MÊS)</small><p id="dash-recebido" style="color:var(--success); font-weight:bold; margin:5px 0;">R$ 0,00</p></div>
-            <div class="card"><small>A RECEBER</small><p id="dash-pendente" style="color:var(--danger); font-weight:bold; margin:5px 0;">R$ 0,00</p></div>
+            <div class="card"><small>RECEBIDO</small><p id="dash-recebido" style="color:var(--success); font-weight:bold;">R$ 0,00</p></div>
+            <div class="card"><small>PENDENTE</small><p id="dash-pendente" style="color:var(--danger); font-weight:bold;">R$ 0,00</p></div>
         </div>
     </section>
 
     <section id="aba-alunos" class="section">
-        <input type="text" id="inputBusca" style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px;" placeholder="🔍 Buscar aluno..." onkeyup="renderAlunos()">
+        <input type="text" id="inputBusca" placeholder="🔍 Buscar aluno..." onkeyup="renderAlunos()">
         <div id="lista-alunos"></div>
         <button class="btn" style="position:fixed; bottom:100px; right:20px; width:60px; height:60px; border-radius:50%; background:var(--primary); font-size:25px;" onclick="abrirModalCadastro()">+</button>
     </section>
 
     <section id="aba-agenda" class="section">
-        <div style="display:flex; gap:5px; overflow-x:auto; padding-bottom:10px; margin-bottom:10px;">
-            <button class="btn" style="width:auto; padding:8px 12px; font-size:10px;" onclick="filtrarAgenda('Segunda')">SEG</button>
-            <button class="btn" style="width:auto; padding:8px 12px; font-size:10px;" onclick="filtrarAgenda('Terça')">TER</button>
-            <button class="btn" style="width:auto; padding:8px 12px; font-size:10px;" onclick="filtrarAgenda('Quarta')">QUA</button>
-            <button class="btn" style="width:auto; padding:8px 12px; font-size:10px;" onclick="filtrarAgenda('Quinta')">QUI</button>
-            <button class="btn" style="width:auto; padding:8px 12px; font-size:10px;" onclick="filtrarAgenda('Sexta')">SEX</button>
-            <button class="btn" style="width:auto; padding:8px 12px; font-size:10px; background:var(--secondary);" onclick="filtrarAgenda('Sábado')">SÁB (T)</button>
-            <button class="btn" style="width:auto; padding:8px 12px; font-size:10px; background:#f39c12;" onclick="filtrarAgenda('Sábado Manhã')">SÁB (M)</button>
+        <div style="display:flex; gap:5px; overflow-x:auto; padding-bottom:10px;">
+            <button class="btn" style="width:auto;" onclick="filtrarAgenda('Segunda')">SEG</button>
+            <button class="btn" style="width:auto;" onclick="filtrarAgenda('Terça')">TER</button>
+            <button class="btn" style="width:auto;" onclick="filtrarAgenda('Quarta')">QUA</button>
+            <button class="btn" style="width:auto;" onclick="filtrarAgenda('Quinta')">QUI</button>
+            <button class="btn" style="width:auto;" onclick="filtrarAgenda('Sexta')">SEX</button>
+            <button class="btn" style="width:auto; background:var(--secondary);" onclick="filtrarAgenda('Sábado')">SÁB</button>
+            <button class="btn" style="width:auto; background:#f39c12;" onclick="filtrarAgenda('Sábado Manhã')">SÁB(M)</button>
         </div>
         <div id="lista-agenda"></div>
     </section>
 
     <section id="aba-sistema" class="section">
         <div class="card">
-            <h3>Backup dos Dados</h3>
-            <button class="btn" style="background:var(--success)" onclick="exportarDados()">EXPORTAR (BAIXAR)</button>
+            <h3>Documentos Rápidos</h3>
+            <button class="btn" style="background:var(--primary)" onclick="gerarMatriculaVazia()">📄 IMPRIMIR FICHA VAZIA</button>
+        </div>
+        <div class="card">
+            <h3>Backup e Segurança</h3>
+            <button class="btn" style="background:var(--success)" onclick="exportarDados()">EXPORTAR DADOS</button>
+            <button class="btn" style="background:var(--gray); margin-top:10px;" onclick="document.getElementById('importFile').click()">RESTAURAR DADOS</button>
             <input type="file" id="importFile" style="display:none;" onchange="importarDados(event)">
-            <button class="btn" style="background:var(--gray); margin-top:10px;" onclick="document.getElementById('importFile').click()">IMPORTAR (RESTAURAR)</button>
         </div>
     </section>
 
@@ -121,43 +130,90 @@
     </nav>
 </div>
 
-<div id="area-recibo">
-    <center>
-        <h1 style="margin:0; font-size: 26px;">APRENDENDO COM AMOR</h1>
-        <p style="margin:5px 0; font-size: 14px;">Reforço Escolar</p>
-        <div style="border-top: 1px solid #000; margin: 20px 0;"></div>
-        <h2 style="font-size:18px; text-decoration: underline;">RECIBO DE PAGAMENTO</h2>
-    </center>
-    <br>
-    <p><strong>ALUNO:</strong> <span id="rec-aluno"></span></p>
-    <p><strong>RESPONSÁVEL:</strong> <span id="rec-pai"></span></p>
-    <p><strong>CONTATO:</strong> <span id="rec-zap"></span></p>
-    <p><strong>MÊS REFERENTE:</strong> <span id="rec-mes"></span></p>
-    <br>
-    <p><strong>VALOR PAGO:</strong> R$ _________________________</p>
-    <p><strong>DATA:</strong> ____ / ____ / 2026</p>
+<div id="area-matricula">
+    <div class="doc-header">
+        <h1 style="margin:0;">REFORÇO ESCOLAR</h1>
+        <h2 style="margin:0; color:#333;">APRENDENDO COM AMOR</h2>
+        <p>FICHA DE MATRÍCULA E TERMO DE COMPROMISSO</p>
+    </div>
+
+    <div class="doc-section">
+        <h3>1. Identificação</h3>
+        <p><strong>NOME DO ALUNO:</strong> <span id="mat-nome">_________________________________________________</span></p>
+        <p><strong>DATA DE NASCIMENTO:</strong> ____/____/________</p>
+        <p><strong>RESPONSÁVEL:</strong> <span id="mat-pai">_________________________________________________</span></p>
+        <p><strong>CPF DO RESPONSÁVEL:</strong> _________________________ <strong>ZAP:</strong> <span id="mat-zap">________________</span></p>
+    </div>
+
+    <div class="doc-section">
+        <h3>2. Saúde e Observações</h3>
+        <p><strong>ALERGIAS OU RESTRIÇÕES MÉDICAS?</strong> __________________________________________________</p>
+        <p>__________________________________________________________________________________________</p>
+    </div>
+
+    <div class="doc-section">
+        <h3>3. Acordo Financeiro e Imagem</h3>
+        <p>• Valor da Mensalidade: <strong>R$ <span id="mat-valor">__________</span></strong> | Vencimento todo dia: <strong><span id="mat-venc">____</span></strong></p>
+        <p>• <strong>USO DE IMAGEM:</strong> Autorizo o uso da imagem do aluno para fins de divulgação e redes sociais do reforço escolar Aprendendo com Amor.</p>
+    </div>
+
     <br><br><br>
     <center>
-        <p>__________________________________________</p>
-        <p style="font-size: 12px;">Assinatura do Responsável</p>
+        <p>_________________________________________________________________</p>
+        <p style="font-size:12px;">Assinatura do Responsável</p>
         
-        <div class="no-print" style="margin-top:40px;">
-            <button class="btn" style="background:var(--success); width:150px;" onclick="window.print()">IMPRIMIR</button>
-            <button class="btn" style="background:var(--gray); width:150px;" onclick="fecharRecibo()">VOLTAR</button>
+        <div class="no-print" style="margin-top:30px;">
+            <button class="btn" style="background:var(--success); width:180px;" onclick="window.print()">IMPRIMIR AGORA</button>
+            <button class="btn" style="background:var(--gray); width:180px;" onclick="fecharRecibo()">VOLTAR</button>
+        </div>
+    </center>
+</div>
+
+<div id="area-recibo">
+    <center>
+        <h4 style="margin:0; text-transform: uppercase;">Aprendendo com Amor</h4>
+        <small>Reforço Escolar</small>
+        <div style="border-bottom: 1px dashed #000; margin: 10px 0;"></div>
+        <h5 style="margin:5px 0;">RECIBO DE PAGAMENTO</h5>
+    </center>
+    
+    <div style="font-size: 13px;">
+        <p><strong>ALUNO:</strong> <br><span id="rec-aluno"></span></p>
+        <p><strong>REFERENTE A:</strong> <span id="rec-mes"></span>/2026</p>
+        <p><strong>VALOR:</strong> R$ _________________</p>
+        <p><strong>DATA:</strong> ____/____/2026</p>
+    </div>
+
+    <div style="border-bottom: 1px dashed #000; margin: 15px 0;"></div>
+    
+    <center>
+        <div style="height: 40px;"></div>
+        <small>_________________________________</small><br>
+        <small>Assinatura Responsável</small>
+        
+        <div class="no-print" style="margin-top:20px;">
+            <button class="btn" style="padding: 5px; font-size: 10px;" onclick="window.print()">IMPRIMIR</button>
+            <button class="btn" style="padding: 5px; font-size: 10px; background:var(--gray);" onclick="fecharRecibo()">VOLTAR</button>
         </div>
     </center>
 </div>
 
 <div id="modalFicha" class="modal"><div class="modal-content" id="fichaCorpo"></div></div>
+
 <div id="modalCadastro" class="modal">
     <div class="modal-content">
         <h2>Matrícula</h2>
-        <input type="hidden" id="edit-id"><input type="text" id="inNome" placeholder="Criança">
-        <input type="text" id="inPai" placeholder="Responsável"><input type="text" id="inZap" placeholder="WhatsApp">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><input type="number" id="inVenc" placeholder="Venc."><input type="number" id="inValor" placeholder="Valor R$"></div>
-        <div id="grade-inputs" style="margin-top:10px;"></div>
-        <button class="btn" style="background:var(--primary); margin-top:15px;" onclick="salvarAluno()">SALVAR</button>
-        <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">FECHAR</button>
+        <input type="hidden" id="edit-id">
+        <input type="text" id="inNome" placeholder="Nome da Criança">
+        <input type="text" id="inPai" placeholder="Responsável">
+        <input type="text" id="inZap" placeholder="WhatsApp">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <input type="number" id="inVenc" placeholder="Venc.">
+            <input type="number" id="inValor" placeholder="Valor R$">
+        </div>
+        <div id="grade-inputs"></div>
+        <button class="btn" style="background:var(--primary); margin-top:10px;" onclick="salvarAluno()">GRAVAR</button>
+        <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">CANCELAR</button>
     </div>
 </div>
 
@@ -169,64 +225,179 @@
     const gradeDiv = document.getElementById('grade-inputs');
     diasSemana.forEach(dia => {
         const idLimpo = dia.replace(/\s+/g, '-');
-        gradeDiv.innerHTML += `<div style="display:flex; align-items:center; gap:5px; margin-bottom:5px;"><span style="font-size:10px; width:70px;">${dia}</span>
-        <select id="h-${idLimpo}"><option value="">Livre</option>
-        ${dia === "Sábado Manhã" ? '<option value="Aula 1">Aula 1</option><option value="Aula 2">Aula 2</option><option value="Aula 3">Aula 3</option><option value="Aula 4">Aula 4</option><option value="Aula 5">Aula 5</option>' : 
-        '<option value="13:00">13h-14h</option><option value="14:00">14h-15h</option><option value="15:00">15h-16h</option><option value="16:00">16h-17h</option>'}</select></div>`;
+        gradeDiv.innerHTML += `<div style="display:flex; align-items:center; gap:5px; margin-bottom:2px;">
+            <span style="font-size:10px; width:70px;">${dia}</span>
+            <select id="h-${idLimpo}" style="padding:5px; font-size:11px;">
+                <option value="">Livre</option>
+                ${dia === "Sábado Manhã" ? '<option value="Aula 1">A1</option><option value="Aula 2">A2</option><option value="Aula 3">A3</option><option value="Aula 4">A4</option><option value="Aula 5">A5</option>' : 
+                '<option value="13:00">13h</option><option value="14:00">14h</option><option value="15:00">15h</option><option value="16:00">16h</option>'}
+            </select>
+        </div>`;
     });
 
-    function checkLogin() { if(document.getElementById('pass-input').value === "reforco") { document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-content').style.display = 'block'; renderTudo(); } else { alert("Senha incorreta!"); } }
-    function renderTudo() { renderAlunos(); renderInicio(); filtrarAgenda('Segunda'); }
-    function renderInicio() {
-        const data = new Date(); document.getElementById('hoje-data').innerText = data.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-        const mesAtual = mesesPagamento[data.getMonth()]; let rec = 0; let pen = 0;
-        alunos.forEach(al => { if ((al.pagos || []).includes(mesAtual)) rec += al.valor; else pen += al.valor; });
-        document.getElementById('dash-recebido').innerText = `R$ ${rec.toFixed(2)}`; document.getElementById('dash-pendente').innerText = `R$ ${pen.toFixed(2)}`;
+    function checkLogin() {
+        if(document.getElementById('pass-input').value === "reforco") {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            renderTudo();
+        } else { alert("Senha incorreta!"); }
     }
+
+    function renderTudo() { renderAlunos(); renderInicio(); filtrarAgenda('Segunda'); }
+
+    function renderInicio() {
+        const data = new Date();
+        document.getElementById('hoje-data').innerText = data.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+        const mesAtual = mesesPagamento[data.getMonth()];
+        let rec = 0; let pen = 0;
+        alunos.forEach(al => { if ((al.pagos || []).includes(mesAtual)) rec += al.valor; else pen += al.valor; });
+        document.getElementById('dash-recebido').innerText = `R$ ${rec.toFixed(2)}`;
+        document.getElementById('dash-pendente').innerText = `R$ ${pen.toFixed(2)}`;
+    }
+
     function renderAlunos() {
         const container = document.getElementById('lista-alunos'); container.innerHTML = "";
         const busca = document.getElementById('inputBusca').value.toLowerCase();
-        alunos.filter(a => a.nome.toLowerCase().includes(busca)).forEach(al => { container.innerHTML += `<div class="card" onclick="verFicha(${al.id})"><strong>${al.nome}</strong><br><small>${al.pai}</small></div>`; });
+        alunos.filter(a => a.nome.toLowerCase().includes(busca)).forEach(al => {
+            container.innerHTML += `<div class="card" onclick="verFicha(${al.id})"><strong>${al.nome}</strong><br><small>${al.pai}</small></div>`;
+        });
     }
+
     function verFicha(id) {
-        const al = alunos.find(a => a.id == id); const mesAtual = mesesPagamento[new Date().getMonth()];
-        document.getElementById('fichaCorpo').innerHTML = `<h2>${al.nome}</h2><div class="grid-meses">${mesesPagamento.map(m => `<div class="mes-btn ${(al.pagos || []).includes(m) ? 'pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}</div>
-        <button class="btn" style="background:var(--secondary)" onclick="gerarRecibo(${al.id}, '${mesAtual}')">📄 RECIBO ${mesAtual}</button><button class="btn" onclick="editarMatricula(${al.id})">EDITAR</button>
-        <button class="btn" style="background:var(--danger)" onclick="deletarMatricula(${al.id})">EXCLUIR</button><button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">VOLTAR</button>`;
+        const al = alunos.find(a => a.id == id);
+        const mesAtual = mesesPagamento[new Date().getMonth()];
+        document.getElementById('fichaCorpo').innerHTML = `
+            <h2 style="margin:0;">${al.nome}</h2>
+            <div class="grid-meses">
+                ${mesesPagamento.map(m => `<div class="mes-btn ${(al.pagos || []).includes(m) ? 'pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}
+            </div>
+            <button class="btn" style="background:var(--secondary)" onclick="gerarMatriculaPreenchida(${al.id})">📄 FICHA DE MATRÍCULA</button>
+            <button class="btn" style="background:var(--dark)" onclick="gerarRecibo(${al.id}, '${mesAtual}')">💵 RECIBO ${mesAtual}</button>
+            <button class="btn" style="background:var(--gray)" onclick="editarMatricula(${al.id})">EDITAR DADOS</button>
+            <button class="btn" style="background:var(--danger)" onclick="deletarMatricula(${al.id})">EXCLUIR ALUNO</button>
+            <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">VOLTAR</button>
+        `;
         document.getElementById('modalFicha').style.display = 'flex';
     }
+
+    function gerarMatriculaPreenchida(id) {
+        const al = alunos.find(a => a.id == id);
+        document.getElementById('mat-nome').innerText = al.nome;
+        document.getElementById('mat-pai').innerText = al.pai;
+        document.getElementById('mat-zap').innerText = al.zap;
+        document.getElementById('mat-valor').innerText = al.valor.toFixed(2);
+        document.getElementById('mat-venc').innerText = al.venc;
+        abrirDocumento('area-matricula');
+    }
+
+    function gerarMatriculaVazia() {
+        document.getElementById('mat-nome').innerText = "_________________________________________________";
+        document.getElementById('mat-pai').innerText = "_________________________________________________";
+        document.getElementById('mat-zap').innerText = "________________";
+        document.getElementById('mat-valor').innerText = "__________";
+        document.getElementById('mat-venc').innerText = "____";
+        abrirDocumento('area-matricula');
+    }
+
     function gerarRecibo(id, mes) {
-        const al = alunos.find(a => a.id == id); document.getElementById('rec-aluno').innerText = al.nome; document.getElementById('rec-pai').innerText = al.pai; document.getElementById('rec-zap').innerText = al.zap; document.getElementById('rec-mes').innerText = mes;
-        document.getElementById('main-content').style.display = 'none'; document.getElementById('modalFicha').style.display = 'none'; document.getElementById('area-recibo').style.display = 'block';
+        const al = alunos.find(a => a.id == id);
+        document.getElementById('rec-aluno').innerText = al.nome;
+        document.getElementById('rec-mes').innerText = mes;
+        abrirDocumento('area-recibo');
     }
-    function fecharRecibo() { document.getElementById('area-recibo').style.display = 'none'; document.getElementById('main-content').style.display = 'block'; }
-    function toggleMes(alunoId, mes) {
-        const al = alunos.find(a => a.id == alunoId); al.pagos = al.pagos || [];
-        if(al.pagos.includes(mes)) al.pagos = al.pagos.filter(m => m !== mes); else al.pagos.push(mes);
-        localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); verFicha(alunoId); renderInicio();
+
+    function abrirDocumento(id) {
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById(id).style.display = 'block';
+        fecharModais();
     }
-    function filtrarAgenda(dia) {
-        const lista = document.getElementById('lista-agenda'); lista.innerHTML = `<h3>${dia.toUpperCase()}</h3>`;
-        const slots = (dia === 'Sábado Manhã') ? ["Aula 1", "Aula 2", "Aula 3", "Aula 4", "Aula 5"] : ["13:00", "14:00", "15:00", "16:00"];
-        slots.forEach(s => { const al = alunos.find(a => a.grade && a.grade[dia] === s); lista.innerHTML += `<div class="card"><b>${s}</b> - ${al ? al.nome : 'Livre'}</div>`; });
+
+    function fecharRecibo() {
+        document.getElementById('area-recibo').style.display = 'none';
+        document.getElementById('area-matricula').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
     }
+
     function salvarAluno() {
-        const id = document.getElementById('edit-id').value; const grade = {};
+        const id = document.getElementById('edit-id').value;
+        const grade = {};
         diasSemana.forEach(d => grade[d] = document.getElementById('h-' + d.replace(/\s+/g, '-')).value);
-        const dados = { id: id ? parseInt(id) : Date.now(), nome: document.getElementById('inNome').value, pai: document.getElementById('inPai').value, zap: document.getElementById('inZap').value, venc: document.getElementById('inVenc').value, valor: parseFloat(document.getElementById('inValor').value) || 0, grade: grade, pagos: id ? (alunos.find(a => a.id == id).pagos || []) : [] };
+        const dados = {
+            id: id ? parseInt(id) : Date.now(),
+            nome: document.getElementById('inNome').value,
+            pai: document.getElementById('inPai').value,
+            zap: document.getElementById('inZap').value,
+            venc: document.getElementById('inVenc').value,
+            valor: parseFloat(document.getElementById('inValor').value) || 0,
+            grade: grade,
+            pagos: id ? (alunos.find(a => a.id == id).pagos || []) : []
+        };
         if(id) { const idx = alunos.findIndex(a => a.id == id); alunos[idx] = dados; } else { alunos.push(dados); }
-        localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); fecharModais(); renderTudo();
+        localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
+        fecharModais(); renderTudo();
     }
-    function switchTab(tabId, el) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById(tabId).classList.add('active'); el.classList.add('active'); renderTudo(); }
+
+    function toggleMes(alunoId, mes) {
+        const al = alunos.find(a => a.id == alunoId);
+        al.pagos = al.pagos || [];
+        if(al.pagos.includes(mes)) al.pagos = al.pagos.filter(m => m !== mes); else al.pagos.push(mes);
+        localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
+        verFicha(alunoId); renderInicio();
+    }
+
+    function filtrarAgenda(dia) {
+        const lista = document.getElementById('lista-agenda');
+        lista.innerHTML = `<h3>${dia.toUpperCase()}</h3>`;
+        const slots = (dia === 'Sábado Manhã') ? ["Aula 1", "Aula 2", "Aula 3", "Aula 4", "Aula 5"] : ["13:00", "14:00", "15:00", "16:00"];
+        slots.forEach(s => {
+            const al = alunos.find(a => a.grade && a.grade[dia] === s);
+            lista.innerHTML += `<div class="card"><b>${s}</b> - ${al ? al.nome : 'Livre'}</div>`;
+        });
+    }
+
+    function switchTab(tabId, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active'); el.classList.add('active');
+        renderTudo();
+    }
+
     function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-    function exportarDados() { const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup_aprendendo.json"; a.click(); }
-    function importarDados(e) { const reader = new FileReader(); reader.onload = ev => { alunos = JSON.parse(ev.target.result); localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); renderTudo(); alert("Dados Restaurados!"); }; reader.readAsText(e.target.files[0]); }
-    function editarMatricula(id) {
-        const al = alunos.find(a => a.id == id); fecharModais(); document.getElementById('modalCadastro').style.display = 'flex'; document.getElementById('edit-id').value = al.id; document.getElementById('inNome').value = al.nome; document.getElementById('inPai').value = al.pai; document.getElementById('inZap').value = al.zap; document.getElementById('inVenc').value = al.venc; document.getElementById('inValor').value = al.valor;
-        diasSemana.forEach(d => { document.getElementById('h-' + d.replace(/\s+/g, '-')).value = (al.grade && al.grade[d]) ? al.grade[d] : ""; });
+    
+    function exportarDados() {
+        const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup.json"; a.click();
     }
-    function abrirModalCadastro() { fecharModais(); document.getElementById('edit-id').value = ""; document.getElementById('inNome').value = ""; document.getElementById('modalCadastro').style.display = 'flex'; }
-    function deletarMatricula(id) { if(confirm("Apagar aluno?")) { alunos = alunos.filter(a => a.id !== id); localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); fecharModais(); renderTudo(); } }
+    function importarDados(e) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            alunos = JSON.parse(ev.target.result);
+            localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
+            renderTudo(); alert("Restaurado!");
+        };
+        reader.readAsText(e.target.files[0]);
+    }
+
+    function editarMatricula(id) {
+        const al = alunos.find(a => a.id == id);
+        fecharModais();
+        document.getElementById('modalCadastro').style.display = 'flex';
+        document.getElementById('edit-id').value = al.id;
+        document.getElementById('inNome').value = al.nome;
+        document.getElementById('inPai').value = al.pai;
+        document.getElementById('inZap').value = al.zap;
+        document.getElementById('inVenc').value = al.venc;
+        document.getElementById('inValor').value = al.valor;
+        diasSemana.forEach(d => { document.getElementById('h-' + d.replace(/\s+/g, '-')).value = al.grade?.[d] || ""; });
+    }
+
+    function abrirModalCadastro() {
+        fecharModais(); document.getElementById('edit-id').value = "";
+        document.getElementById('inNome').value = "";
+        document.getElementById('modalCadastro').style.display = 'flex';
+    }
+
+    function deletarMatricula(id) { if(confirm("Apagar?")) { alunos = alunos.filter(a => a.id !== id); localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); fecharModais(); renderTudo(); } }
 </script>
 </body>
 </html>
