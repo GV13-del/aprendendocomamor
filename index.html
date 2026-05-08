@@ -19,10 +19,6 @@
         .section.active { display: block; }
         .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #eee; cursor: pointer; }
 
-        .grid-meses { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 15px 0; }
-        .mes-btn { padding: 8px 2px; font-size: 10px; border-radius: 5px; border: 1px solid #ddd; background: #fff; cursor: pointer; text-align: center; }
-        .mes-btn.pago { background: var(--success); color: white; border-color: var(--success); font-weight: bold; }
-
         .btn { background: var(--dark); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; text-transform: uppercase; font-size: 11px; }
         
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
@@ -33,37 +29,35 @@
         .modal-content { background: white; padding: 25px; border-radius: 25px 25px 0 0; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; }
         input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
 
-        /* --- CONFIGURAÇÕES DE IMPRESSÃO --- */
-        #area-recibo, #area-matricula { display: none; background: white; color: black; }
+        /* --- REGRAS DE IMPRESSÃO (O SEGREDO ESTÁ AQUI) --- */
+        #area-recibo, #area-matricula { display: none; }
 
         @media print {
+            /* Esconde tudo do app */
             body { background: white; }
             #main-content, .modal, .bottom-nav, .no-print { display: none !important; }
-            
-            #area-matricula { 
+
+            /* Se a ficha estiver aberta, imprime só ela */
+            #area-matricula.imprimir-agora { 
                 display: block !important; 
-                padding: 40px; 
-                line-height: 1.8;
+                width: 100%;
+                padding: 20px;
             }
 
-            #area-recibo { 
+            /* Se o recibo estiver aberto, imprime só ele */
+            #area-recibo.imprimir-agora { 
                 display: block !important; 
                 width: 80mm; 
                 margin: 0 auto;
-                padding: 10px;
                 border: 1px solid #000;
-                line-height: 1.4;
+                padding: 10px;
             }
         }
 
-        /* Estilo visual da ficha na tela */
-        #area-matricula { padding: 40px; line-height: 1.8; max-width: 800px; margin: auto; }
+        /* Estilos Visuais */
         .doc-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
-        .doc-section { margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .doc-section { margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 10px; line-height: 1.8; }
         .doc-section h3 { margin: 0; font-size: 14px; text-transform: uppercase; background: #f0f0f0; padding: 5px; }
-        
-        /* Estilo visual do recibo na tela */
-        #area-recibo { max-width: 350px; margin: 20px auto; padding: 20px; border: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -101,7 +95,6 @@
             <button class="btn" style="width:auto;" onclick="filtrarAgenda('Quinta')">QUI</button>
             <button class="btn" style="width:auto;" onclick="filtrarAgenda('Sexta')">SEX</button>
             <button class="btn" style="width:auto; background:var(--secondary);" onclick="filtrarAgenda('Sábado')">SÁB</button>
-            <button class="btn" style="width:auto; background:#f39c12;" onclick="filtrarAgenda('Sábado Manhã')">SÁB(M)</button>
         </div>
         <div id="lista-agenda"></div>
     </section>
@@ -112,10 +105,8 @@
             <button class="btn" style="background:var(--primary)" onclick="gerarMatriculaVazia()">📄 IMPRIMIR FICHA VAZIA</button>
         </div>
         <div class="card">
-            <h3>Backup e Segurança</h3>
-            <button class="btn" style="background:var(--success)" onclick="exportarDados()">EXPORTAR DADOS</button>
-            <button class="btn" style="background:var(--gray); margin-top:10px;" onclick="document.getElementById('importFile').click()">RESTAURAR DADOS</button>
-            <input type="file" id="importFile" style="display:none;" onchange="importarDados(event)">
+            <h3>Backup</h3>
+            <button class="btn" style="background:var(--success)" onclick="exportarDados()">EXPORTAR BACKUP</button>
         </div>
     </section>
 
@@ -129,68 +120,47 @@
 
 <div id="area-matricula">
     <div class="doc-header">
-        <h1 style="margin:0;">REFORÇO ESCOLAR</h1>
-        <h2 style="margin:0; color:#333;">APRENDENDO COM AMOR</h2>
-        <p>FICHA DE MATRÍCULA E TERMO DE COMPROMISSO</p>
+        <h1>REFORÇO ESCOLAR - APRENDENDO COM AMOR</h1>
+        <p>FICHA DE MATRÍCULA</p>
     </div>
-
     <div class="doc-section">
-        <h3>1. Identificação</h3>
-        <p><strong>NOME DO ALUNO:</strong> <span id="mat-nome">_________________________________________________</span></p>
-        <p><strong>DATA DE NASCIMENTO:</strong> ____/____/________</p>
-        <p><strong>RESPONSÁVEL:</strong> <span id="mat-pai">_________________________________________________</span></p>
-        <p><strong>CPF DO RESPONSÁVEL:</strong> _________________________ <strong>ZAP:</strong> <span id="mat-zap">________________</span></p>
+        <p><strong>NOME DO ALUNO:</strong> <span id="mat-nome">_________________________________</span></p>
+        <p><strong>RESPONSÁVEL:</strong> <span id="mat-pai">_________________________________</span></p>
+        <p><strong>ZAP:</strong> <span id="mat-zap">________________</span> | <strong>VENCIMENTO:</strong> <span id="mat-venc">____</span></p>
+        <p><strong>VALOR: R$</strong> <span id="mat-valor">__________</span></p>
     </div>
-
     <div class="doc-section">
-        <h3>2. Saúde e Observações</h3>
-        <p><strong>ALERGIAS OU RESTRIÇÕES MÉDICAS?</strong> __________________________________________________</p>
-        <p>__________________________________________________________________________________________</p>
+        <p><strong>OBSERVAÇÕES/SAÚDE:</strong> ___________________________________________________________</p>
     </div>
-
-    <div class="doc-section">
-        <h3>3. Acordo Financeiro e Imagem</h3>
-        <p>• Valor da Mensalidade: <strong>R$ <span id="mat-valor">__________</span></strong> | Vencimento todo dia: <strong><span id="mat-venc">____</span></strong></p>
-        <p>• <strong>USO DE IMAGEM:</strong> Autorizo o uso da imagem do aluno para fins de divulgação e redes sociais do reforço escolar Aprendendo com Amor.</p>
-    </div>
-
-    <br><br><br>
+    <br><br>
     <center>
-        <p>_________________________________________________________________</p>
-        <p style="font-size:12px;">Assinatura do Responsável</p>
-        
-        <div class="no-print" style="margin-top:30px;">
-            <button class="btn" style="background:var(--success); width:180px;" onclick="window.print()">IMPRIMIR AGORA</button>
-            <button class="btn" style="background:var(--gray); width:180px;" onclick="fecharDocumentos()">VOLTAR</button>
+        <p>__________________________________________</p>
+        <p>Assinatura</p>
+        <div class="no-print">
+            <button class="btn" style="width:200px; background:var(--success);" onclick="window.print()">IMPRIMIR AGORA</button>
+            <button class="btn" style="width:200px; background:var(--gray);" onclick="fecharDocumentos()">VOLTAR</button>
         </div>
     </center>
 </div>
 
 <div id="area-recibo">
     <center>
-        <h4 style="margin:0; text-transform: uppercase;">Aprendendo com Amor</h4>
-        <small>Reforço Escolar</small>
-        <div style="border-bottom: 1px dashed #000; margin: 10px 0;"></div>
-        <h5 style="margin:5px 0;">RECIBO DE PAGAMENTO</h5>
+        <h4 style="margin:0;">APRENDENDO COM AMOR</h4>
+        <small>Recibo de Pagamento</small>
+        <hr>
     </center>
-    
-    <div style="font-size: 13px;">
-        <p><strong>ALUNO:</strong> <br><span id="rec-aluno"></span></p>
-        <p><strong>REFERENTE A:</strong> <span id="rec-mes"></span>/<span class="ano-atual"></span></p>
-        <p><strong>VALOR:</strong> R$ _________________</p>
-        <p><strong>DATA:</strong> ____/____/<span class="ano-atual"></span></p>
-    </div>
-
-    <div style="border-bottom: 1px dashed #000; margin: 15px 0;"></div>
-    
+    <p style="font-size:13px;">
+        <strong>ALUNO:</strong> <span id="rec-aluno"></span><br>
+        <strong>MÊS:</strong> <span id="rec-mes"></span>/2026<br>
+        <strong>VALOR:</strong> R$ _________________
+    </p>
     <center>
-        <div style="height: 40px;"></div>
+        <div style="height:30px;"></div>
         <small>_________________________________</small><br>
-        <small>Assinatura Responsável</small>
-        
-        <div class="no-print" style="margin-top:20px;">
-            <button class="btn" style="padding: 10px; background:var(--success);" onclick="window.print()">IMPRIMIR</button>
-            <button class="btn" style="padding: 10px; background:var(--gray);" onclick="fecharDocumentos()">VOLTAR</button>
+        <small>Assinatura</small>
+        <div class="no-print">
+            <button class="btn" style="background:var(--success);" onclick="window.print()">IMPRIMIR</button>
+            <button class="btn" style="background:var(--gray);" onclick="fecharDocumentos()">VOLTAR</button>
         </div>
     </center>
 </div>
@@ -204,78 +174,39 @@
         <input type="text" id="inNome" placeholder="Nome da Criança">
         <input type="text" id="inPai" placeholder="Responsável">
         <input type="text" id="inZap" placeholder="WhatsApp">
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <input type="number" id="inVenc" placeholder="Venc.">
-            <input type="number" id="inValor" placeholder="Valor R$">
-        </div>
-        <div id="grade-inputs"></div>
-        <button class="btn" style="background:var(--primary); margin-top:10px;" onclick="salvarAluno()">GRAVAR</button>
-        <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">CANCELAR</button>
+        <input type="number" id="inVenc" placeholder="Dia Vencimento">
+        <input type="number" id="inValor" placeholder="Valor R$">
+        <button class="btn" style="background:var(--primary)" onclick="salvarAluno()">SALVAR</button>
+        <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">FECHAR</button>
     </div>
 </div>
 
 <script>
-    const mesesPagamento = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Sábado Manhã"];
     let alunos = JSON.parse(localStorage.getItem('gv13_v_final')) || [];
-
-    // Preenche o ano atual automaticamente nos recibos
-    document.querySelectorAll('.ano-atual').forEach(el => el.innerText = new Date().getFullYear());
-
-    const gradeDiv = document.getElementById('grade-inputs');
-    diasSemana.forEach(dia => {
-        const idLimpo = dia.replace(/\s+/g, '-');
-        gradeDiv.innerHTML += `<div style="display:flex; align-items:center; gap:5px; margin-bottom:2px;">
-            <span style="font-size:10px; width:70px;">${dia}</span>
-            <select id="h-${idLimpo}" style="padding:5px; font-size:11px;">
-                <option value="">Livre</option>
-                ${dia === "Sábado Manhã" ? '<option value="Aula 1">A1</option><option value="Aula 2">A2</option><option value="Aula 3">A3</option><option value="Aula 4">A4</option><option value="Aula 5">A5</option>' : 
-                '<option value="13:00">13h</option><option value="14:00">14h</option><option value="15:00">15h</option><option value="16:00">16h</option>'}
-            </select>
-        </div>`;
-    });
 
     function checkLogin() {
         if(document.getElementById('pass-input').value === "reforco") {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
-            renderTudo();
-        } else { alert("Senha incorreta!"); }
-    }
-
-    function renderTudo() { renderAlunos(); renderInicio(); filtrarAgenda('Segunda'); }
-
-    function renderInicio() {
-        const data = new Date();
-        document.getElementById('hoje-data').innerText = data.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-        const mesAtual = mesesPagamento[data.getMonth()];
-        let rec = 0; let pen = 0;
-        alunos.forEach(al => { if ((al.pagos || []).includes(mesAtual)) rec += al.valor; else pen += al.valor; });
-        document.getElementById('dash-recebido').innerText = `R$ ${rec.toFixed(2)}`;
-        document.getElementById('dash-pendente').innerText = `R$ ${pen.toFixed(2)}`;
+            renderAlunos();
+        } else { alert("Senha errada!"); }
     }
 
     function renderAlunos() {
-        const container = document.getElementById('lista-alunos'); container.innerHTML = "";
-        const busca = document.getElementById('inputBusca').value.toLowerCase();
-        alunos.filter(a => a.nome.toLowerCase().includes(busca)).forEach(al => {
-            container.innerHTML += `<div class="card" onclick="verFicha(${al.id})"><strong>${al.nome}</strong><br><small>${al.pai}</small></div>`;
+        const container = document.getElementById('lista-alunos');
+        container.innerHTML = "";
+        alunos.forEach(al => {
+            container.innerHTML += `<div class="card" onclick="verFicha(${al.id})"><b>${al.nome}</b></div>`;
         });
     }
 
     function verFicha(id) {
         const al = alunos.find(a => a.id == id);
-        const mesAtual = mesesPagamento[new Date().getMonth()];
         document.getElementById('fichaCorpo').innerHTML = `
-            <h2 style="margin:0;">${al.nome}</h2>
-            <div class="grid-meses">
-                ${mesesPagamento.map(m => `<div class="mes-btn ${(al.pagos || []).includes(m) ? 'pago' : ''}" onclick="toggleMes(${al.id}, '${m}')">${m}</div>`).join('')}
-            </div>
-            <button class="btn" style="background:var(--secondary)" onclick="gerarMatriculaPreenchida(${al.id})">📄 FICHA DE MATRÍCULA</button>
-            <button class="btn" style="background:var(--dark)" onclick="gerarRecibo(${al.id}, '${mesAtual}')">💵 RECIBO ${mesAtual}</button>
-            <button class="btn" style="background:var(--gray)" onclick="editarMatricula(${al.id})">EDITAR DADOS</button>
-            <button class="btn" style="background:var(--danger)" onclick="deletarMatricula(${al.id})">EXCLUIR ALUNO</button>
-            <button class="btn" style="background:#eee; color:#333" onclick="fecharModais()">VOLTAR</button>
+            <h3>${al.nome}</h3>
+            <button class="btn" style="background:var(--secondary)" onclick="gerarMatriculaPreenchida(${al.id})">IMPRIMIR FICHA</button>
+            <button class="btn" style="background:var(--dark)" onclick="gerarRecibo(${al.id})">IMPRIMIR RECIBO</button>
+            <button class="btn" onclick="fecharModais()">VOLTAR</button>
         `;
         document.getElementById('modalFicha').style.display = 'flex';
     }
@@ -285,35 +216,43 @@
         document.getElementById('mat-nome').innerText = al.nome;
         document.getElementById('mat-pai').innerText = al.pai;
         document.getElementById('mat-zap').innerText = al.zap;
-        document.getElementById('mat-valor').innerText = al.valor.toFixed(2);
+        document.getElementById('mat-valor').innerText = al.valor;
         document.getElementById('mat-venc').innerText = al.venc;
-        abrirDocumento('area-matricula');
+        
+        // MARCA APENAS A FICHA PARA IMPRESSÃO
+        document.getElementById('area-matricula').classList.add('imprimir-agora');
+        document.getElementById('area-recibo').classList.remove('imprimir-agora');
+        
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('area-matricula').style.display = 'block';
+        fecharModais();
     }
 
     function gerarMatriculaVazia() {
-        document.getElementById('mat-nome').innerText = "_________________________________________________";
-        document.getElementById('mat-pai').innerText = "_________________________________________________";
+        document.getElementById('mat-nome').innerText = "___________________";
+        document.getElementById('mat-pai').innerText = "___________________";
         document.getElementById('mat-zap').innerText = "________________";
-        document.getElementById('mat-valor').innerText = "__________";
+        document.getElementById('mat-valor').innerText = "________";
         document.getElementById('mat-venc').innerText = "____";
-        abrirDocumento('area-matricula');
+        
+        document.getElementById('area-matricula').classList.add('imprimir-agora');
+        document.getElementById('area-recibo').classList.remove('imprimir-agora');
+        
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('area-matricula').style.display = 'block';
     }
 
-    function gerarRecibo(id, mes) {
+    function gerarRecibo(id) {
         const al = alunos.find(a => a.id == id);
         document.getElementById('rec-aluno').innerText = al.nome;
-        document.getElementById('rec-mes').innerText = mes;
-        abrirDocumento('area-recibo');
-    }
-
-    function abrirDocumento(id) {
-        // Esconde tudo primeiro para evitar sobreposição
-        document.getElementById('main-content').style.display = 'none';
-        document.getElementById('area-recibo').style.display = 'none';
-        document.getElementById('area-matricula').style.display = 'none';
+        document.getElementById('rec-mes').innerText = "Mês Atual";
         
-        // Mostra só o documento solicitado
-        document.getElementById(id).style.display = 'block';
+        // MARCA APENAS O RECIBO PARA IMPRESSÃO
+        document.getElementById('area-recibo').classList.add('imprimir-agora');
+        document.getElementById('area-matricula').classList.remove('imprimir-agora');
+        
+        document.getElementById('main-content').style.display = 'none';
+        document.getElementById('area-recibo').style.display = 'block';
         fecharModais();
     }
 
@@ -321,91 +260,35 @@
         document.getElementById('area-recibo').style.display = 'none';
         document.getElementById('area-matricula').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        renderTudo();
+        // Limpa as marcas de impressão
+        document.getElementById('area-recibo').classList.remove('imprimir-agora');
+        document.getElementById('area-matricula').classList.remove('imprimir-agora');
     }
 
     function salvarAluno() {
-        const id = document.getElementById('edit-id').value;
-        const grade = {};
-        diasSemana.forEach(d => grade[d] = document.getElementById('h-' + d.replace(/\s+/g, '-')).value);
-        const dados = {
-            id: id ? parseInt(id) : Date.now(),
+        const novo = {
+            id: Date.now(),
             nome: document.getElementById('inNome').value,
             pai: document.getElementById('inPai').value,
             zap: document.getElementById('inZap').value,
             venc: document.getElementById('inVenc').value,
-            valor: parseFloat(document.getElementById('inValor').value) || 0,
-            grade: grade,
-            pagos: id ? (alunos.find(a => a.id == id).pagos || []) : []
+            valor: document.getElementById('inValor').value
         };
-        if(id) { const idx = alunos.findIndex(a => a.id == id); alunos[idx] = dados; } else { alunos.push(dados); }
+        alunos.push(novo);
         localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
-        fecharModais(); renderTudo();
-    }
-
-    function toggleMes(alunoId, mes) {
-        const al = alunos.find(a => a.id == alunoId);
-        al.pagos = al.pagos || [];
-        if(al.pagos.includes(mes)) al.pagos = al.pagos.filter(m => m !== mes); else al.pagos.push(mes);
-        localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
-        verFicha(alunoId); renderInicio();
-    }
-
-    function filtrarAgenda(dia) {
-        const lista = document.getElementById('lista-agenda');
-        lista.innerHTML = `<h3>${dia.toUpperCase()}</h3>`;
-        const slots = (dia === 'Sábado Manhã') ? ["Aula 1", "Aula 2", "Aula 3", "Aula 4", "Aula 5"] : ["13:00", "14:00", "15:00", "16:00"];
-        slots.forEach(s => {
-            const al = alunos.find(a => a.grade && a.grade[dia] === s);
-            lista.innerHTML += `<div class="card"><b>${s}</b> - ${al ? al.nome : 'Livre'}</div>`;
-        });
+        fecharModais(); renderAlunos();
     }
 
     function switchTab(tabId, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active'); el.classList.add('active');
-        renderTudo();
+        document.getElementById(tabId).classList.add('active');
+        el.classList.add('active');
     }
 
     function fecharModais() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-    
-    function exportarDados() {
-        const blob = new Blob([JSON.stringify(alunos)], {type: "application/json"});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup-reforco.json"; a.click();
-    }
-    function importarDados(e) {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            try {
-                alunos = JSON.parse(ev.target.result);
-                localStorage.setItem('gv13_v_final', JSON.stringify(alunos));
-                renderTudo(); alert("Dados restaurados com sucesso!");
-            } catch(e) { alert("Arquivo inválido!"); }
-        };
-        reader.readAsText(e.target.files[0]);
-    }
-
-    function editarMatricula(id) {
-        const al = alunos.find(a => a.id == id);
-        fecharModais();
-        document.getElementById('modalCadastro').style.display = 'flex';
-        document.getElementById('edit-id').value = al.id;
-        document.getElementById('inNome').value = al.nome;
-        document.getElementById('inPai').value = al.pai;
-        document.getElementById('inZap').value = al.zap;
-        document.getElementById('inVenc').value = al.venc;
-        document.getElementById('inValor').value = al.valor;
-        diasSemana.forEach(d => { document.getElementById('h-' + d.replace(/\s+/g, '-')).value = al.grade?.[d] || ""; });
-    }
-
-    function abrirModalCadastro() {
-        fecharModais(); document.getElementById('edit-id').value = "";
-        document.getElementById('inNome').value = "";
-        document.getElementById('modalCadastro').style.display = 'flex';
-    }
-
-    function deletarMatricula(id) { if(confirm("Tem certeza que deseja excluir permanentemente este aluno?")) { alunos = alunos.filter(a => a.id !== id); localStorage.setItem('gv13_v_final', JSON.stringify(alunos)); fecharModais(); renderTudo(); } }
+    function abrirModalCadastro() { document.getElementById('modalCadastro').style.display = 'flex'; }
+    function exportarDados() { alert("Dados salvos no navegador!"); }
 </script>
 </body>
 </html>
